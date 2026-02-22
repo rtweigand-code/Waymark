@@ -1,4 +1,4 @@
-/* MOBILE FIRST STYLES (Default) */
+/*Mobile First Styles*/
 html, body {
     padding: 0; margin: 0;
     height: 100%; width: 100%;
@@ -14,24 +14,24 @@ html, body {
     display: flex; justify-content: center; align-items: center;
     z-index: 100;
 }
-
+/* Login Box */
 .login-box {
     background: white; padding: 30px;
     border-radius: 10px; text-align: center;
     width: 80%; max-width: 300px;
 }
-
+/* Login Box Elements */
 .login-box input {
     width: 90%; padding: 10px; margin: 10px 0;
     border: 1px solid #ccc; border-radius: 5px;
 }
-
+/* Login Button */
 .login-box button {
     width: 100%; padding: 10px;
     background-color: #333; color: white;
     border: none; border-radius: 5px; cursor: pointer;
 }
-
+/* Modal for Entry Editor */
 .entry-modal-box {
     background: white;
     padding: 20px;
@@ -43,20 +43,20 @@ html, body {
     flex-direction: column;
     text-align: left;
 }
-
+/* Entry Modal Elements */
 .entry-coords {
     font-size: 0.85em;
     color: #666;
     margin: 0 0 12px 0;
 }
-
+/* Simple toolbar for text formatting (can be expanded later) */
 .editor-toolbar {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin: 8px 0;
 }
-
+/* Basic styling for toolbar buttons */
 .editor-toolbar .editor-btn {
     width: auto;
     padding: 6px 10px;
@@ -65,7 +65,7 @@ html, body {
     border: 1px solid #ccc;
     border-radius: 6px;
 }
-
+/*Entry Editor */
 .entry-editor {
     flex: 1;
     border: 1px solid #ccc;
@@ -74,23 +74,23 @@ html, body {
     overflow-y: auto;
     background: #fff;
 }
-
+/* Remove default focus outline and add a subtle border color change on focus */
 .entry-editor:focus {
     outline: none;
     border-color: #a43855;
 }
-
+/* Modal Action Buttons */
 .entry-modal-actions {
     display: flex;
     gap: 10px;
     margin-top: 12px;
 }
-
+/* Save and Cancel buttons */
 .entry-modal-actions button {
     width: auto;
     padding: 10px 16px;
 }
-
+/* Save button in burgundy, Cancel in neutral gray */
 .save-btn {
     background-color: #a43855;
 }
@@ -98,7 +98,7 @@ html, body {
 .cancel-btn {
     background-color: #999;
 }
-
+/* Guest Button on Login Screen */
 #guestBtn {
     margin-top: 14px;
 }
@@ -107,7 +107,7 @@ html, body {
 .app-container {
     display: flex; flex-direction: column; height: 100%;
 }
-
+/* Header with app title and mobile menu button */
 .app-header {
     background-color: #a43855; color: white;
     padding: 10px 20px; display: flex;
@@ -119,7 +119,7 @@ html, body {
     position: relative;
 }
 
-/* On mobile, sidebar is hidden by default (we show map) */
+/* On mobile, sidebar is hidden by default*/
 .sidebar {
     display: none; width: 100%;
     background-color: white; padding: 10px;
@@ -133,9 +133,9 @@ html, body {
     flex: 1; height: 100%; width: 100%;
     position: relative;
 }
-
+/* Map div should fill the container */
 #viewDiv { height: 100%; width: 100%; }
-
+/* Hint box on the map */
 .map-hint {
     position: absolute;
     left: 12px;
@@ -148,7 +148,7 @@ html, body {
     color: #333;
     z-index: 4;
 }
-
+/* Entry Detail Panel */
 .entry-detail-panel {
     display: none;
     width: 320px;
@@ -158,17 +158,17 @@ html, body {
     overflow-y: auto;
     z-index: 5;
 }
-
+/* Show the entry detail panel when active */
 .entry-detail-panel.active {
     display: block;
 }
-
+/* Entry Detail Elements */
 .entry-detail-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
+/* Edit button in entry detail header */
 .entry-detail-header button {
     width: auto;
     padding: 6px 10px;
@@ -177,22 +177,22 @@ html, body {
     border: none;
     border-radius: 6px;
 }
-
+/* Entry metadata styling */
 .entry-detail-meta {
     color: #666;
     font-size: 0.85em;
 }
-
+/* Entry content styling */
 .entry-detail-content {
     line-height: 1.5;
 }
-
+/* Row layout for map hint and entry detail options */
 .map-widget-row {
     display: flex;
     align-items: center;
     gap: 8px;
 }
-
+/* Option buttons in the entry detail panel */
 .popup-entry-option {
     margin: 4px 0;
     background: none;
@@ -210,15 +210,13 @@ html, body {
     background-color: white; border-top: 1px solid #ccc;
     padding: 10px;
 }
-
+/* Buttons in the mobile nav */
 .mobile-nav button {
     background: none; border: none; font-size: 16px;
     color: #a43855; cursor: pointer;
 }
 
-/* =========================================
-   DESKTOP STYLES (Applies to screens wider than 768px)
-   ========================================= */
+/* Desktop Styles */
 @media (min-width: 768px) {
     .app-body { flex-direction: row; }
 
@@ -233,7 +231,7 @@ html, body {
         display: none; /* Hide bottom nav on desktop */
     }
 }
-
+/* On mobile, the entry detail panel should overlay the map */
 @media (max-width: 767px) {
     .entry-detail-panel.active {
         position: absolute;
@@ -243,4 +241,56 @@ html, body {
         max-width: 85vw;
         z-index: 25;
     }
+}
+/* STORYTELLING STYLES */
+/* Container for the story editing interface */
+.story-drag-container {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background: #fafafa;
+    border-radius: 6px;
+}
+/* Individual draggable items representing entries */
+.draggable-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: grab;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+/* Change cursor and background when dragging */
+.draggable-item:active {
+    cursor: grabbing;
+    background: #f0f0f0;
+}
+/* Styling for the story list in the sidebar */
+.story-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Small buttons for story actions */
+.story-btn-small {
+    background: none;
+    border: 1px solid #a43855;
+    color: #a43855;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+/* Hover effect for story action buttons */
+.story-btn-small:hover {
+    background: #a43855;
+    color: white;
 }
