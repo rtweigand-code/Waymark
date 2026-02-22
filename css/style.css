@@ -69,11 +69,7 @@ html, body {
 
 #viewDiv { height: 100%; width: 100%; }
 
-.map-controls-row {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    z-index: 20;
+.map-widget-row {
     display: flex;
     align-items: center;
     gap: 8px;

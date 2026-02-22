@@ -80,53 +80,46 @@ function initMap() {
             container: "searchContainer"
         });
 
+        const locateBtn = new Locate({
+            view: view
+        });
+
         const basemapGallery = new BasemapGallery({
             view: view
         });
 
-        const locateContainer = document.getElementById("locateControl");
-        const basemapContainer = document.getElementById("basemapControl");
+        const widgetRow = document.createElement("div");
+        widgetRow.className = "map-widget-row";
 
-        const locateBtn = new Locate({
-            view: view,
-            container: locateContainer
-        });
+        const locateContainer = document.createElement("div");
+        const basemapContainer = document.createElement("div");
+        widgetRow.appendChild(locateContainer);
+        widgetRow.appendChild(basemapContainer);
 
-        new Expand({
+        locateBtn.container = locateContainer;
+
+        const bgExpand = new Expand({
             view: view,
             content: basemapGallery,
             container: basemapContainer,
-            expandIconClass: "esri-icon-basemap"
+            autoCollapse: true
         });
 
-        function centerOnUserLocation() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error("Geolocation not supported"));
-                    return;
-                }
+        view.ui.add(widgetRow, {
+            position: "bottom-right",
+            index: 0
+        });
 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
+        view.when(() => {
+            locateBtn.locate().catch(() => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
                         view.goTo({
                             center: [position.coords.longitude, position.coords.latitude],
                             zoom: 13
-                        }).then(resolve).catch(reject);
-                    },
-                    reject,
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            });
-        }
-
-        view.when(() => {
-            centerOnUserLocation().catch(() => {
-                locateBtn.locate().catch(() => {
-                });
+                        });
+                    });
+                }
             });
         });
 
