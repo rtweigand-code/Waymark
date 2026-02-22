@@ -84,14 +84,8 @@ function initMap() {
             view: view
         });
 
-        const mapControlsRow = document.createElement("div");
-        mapControlsRow.className = "map-controls-row";
-
-        const locateContainer = document.createElement("div");
-        const basemapContainer = document.createElement("div");
-
-        mapControlsRow.appendChild(locateContainer);
-        mapControlsRow.appendChild(basemapContainer);
+        const locateContainer = document.getElementById("locateControl");
+        const basemapContainer = document.getElementById("basemapControl");
 
         const locateBtn = new Locate({
             view: view,
@@ -105,10 +99,34 @@ function initMap() {
             expandIconClass: "esri-icon-basemap"
         });
 
-        view.ui.add(mapControlsRow, "bottom-right");
+        function centerOnUserLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("Geolocation not supported"));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        view.goTo({
+                            center: [position.coords.longitude, position.coords.latitude],
+                            zoom: 13
+                        }).then(resolve).catch(reject);
+                    },
+                    reject,
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        }
 
         view.when(() => {
-            locateBtn.locate().catch(() => {
+            centerOnUserLocation().catch(() => {
+                locateBtn.locate().catch(() => {
+                });
             });
         });
 
