@@ -29,10 +29,6 @@
         }
 
         .addRecordBtn {
-            position: absolute;
-            z-index: 10;
-            top: 10px;
-            right: 10px;
             background-color: #0079c1;
             color: white;
             padding: 8px 16px;
@@ -47,9 +43,8 @@
             background-color: #005a87;
         }
 
-        .esri-ui-top-right {
-            top: 56px;
-            right: 10px;
+        #addRecordContainer {
+            margin: 10px;
         }
     </style>
     <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css" />
@@ -79,14 +74,30 @@
                 container: "viewDiv"
             });
 
-            const basemapGallery = new BasemapGallery({ //default Basemap Gallery Widget
-                view: view,
+            const addRecordContainer = document.getElementById("addRecordContainer");
+            view.ui.add(addRecordContainer, {
+                position: "top-right",
+                index: 0
             });
-            const expand = new Expand({ //put basemap gallery widget in an expandable tab
+
+            const basemapChoices = [
+                "national-geographic"
+            ].map((id) => Basemap.fromId(id));
+
+            const basemapGallery = new BasemapGallery({
+                view: view,
+                source: basemapChoices
+            });
+
+            const expand = new Expand({
                 view: view,
                 content: basemapGallery
             });
-            view.ui.add(expand, "top-right"); //set expandable tab in top-right of map
+
+            view.ui.add(expand, {
+                position: "top-right",
+                index: 1
+            });
 
             const locateBtn = new Locate({
                 view: view
@@ -174,7 +185,9 @@
     </script>
 </head>
 <body>
-<a href="https://arcg.is/1fi8nW0" target="_blank" class="addRecordBtn">Add Record</a>
+<div id="addRecordContainer">
+    <a href="https://arcg.is/1fi8nW0" target="_blank" class="addRecordBtn">Add Record</a>
+</div>
 <div id="viewDiv"></div>
 <div id="searchError" class="search-error" role="alert" aria-live="polite"></div>
 </body>
