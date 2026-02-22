@@ -1,0 +1,95 @@
+/* MOBILE FIRST STYLES (Default) */
+html, body {
+    padding: 0; margin: 0;
+    height: 100%; width: 100%;
+    font-family: sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Login Overlay */
+.overlay {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(164, 56, 85, 0.9); /* Kuromi burgundy! */
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100;
+}
+
+.login-box {
+    background: white; padding: 30px;
+    border-radius: 10px; text-align: center;
+    width: 80%; max-width: 300px;
+}
+
+.login-box input {
+    width: 90%; padding: 10px; margin: 10px 0;
+    border: 1px solid #ccc; border-radius: 5px;
+}
+
+.login-box button {
+    width: 100%; padding: 10px;
+    background-color: #333; color: white;
+    border: none; border-radius: 5px; cursor: pointer;
+}
+
+/* App Layout */
+.app-container {
+    display: flex; flex-direction: column; height: 100%;
+}
+
+.app-header {
+    background-color: #a43855; color: white;
+    padding: 10px 20px; display: flex;
+    justify-content: space-between; align-items: center;
+}
+
+.app-body {
+    display: flex; flex: 1; overflow: hidden;
+    position: relative;
+}
+
+/* On mobile, sidebar is hidden by default (we show map) */
+.sidebar {
+    display: none; width: 100%;
+    background-color: white; padding: 10px;
+    overflow-y: auto; z-index: 10;
+}
+
+/* Toggle class for mobile view */
+.sidebar.active { display: block; }
+
+.map-container {
+    flex: 1; height: 100%; width: 100%;
+}
+
+#viewDiv { height: 100%; width: 100%; }
+
+/* Mobile Bottom Navigation */
+.mobile-nav {
+    display: flex; justify-content: space-around;
+    background-color: white; border-top: 1px solid #ccc;
+    padding: 10px;
+}
+
+.mobile-nav button {
+    background: none; border: none; font-size: 16px;
+    color: #a43855; cursor: pointer;
+}
+
+/* =========================================
+   DESKTOP STYLES (Applies to screens wider than 768px)
+   ========================================= */
+@media (min-width: 768px) {
+    .app-body { flex-direction: row; }
+
+    .sidebar {
+        display: flex; /* Always show on desktop */
+        flex-direction: column;
+        width: 350px;
+        border-right: 1px solid #ccc;
+    }
+
+    .mobile-nav {
+        display: none; /* Hide bottom nav on desktop */
+    }
+}

@@ -3,192 +3,53 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <title>Data Collector for AGOL</title>
-    <style>
-        html,
-        body,
-        #viewDiv {
-            padding: 0;
-            margin: 0;
-            height: 100%;
-            width: 100%;
-        }
+    <title>My Map Diary</title>
 
-        .search-error {
-            position: absolute;
-            top: 58px;
-            right: 15px;
-            background: #fff3cd;
-            color: #664d03;
-            border: 1px solid #ffecb5;
-            border-radius: 4px;
-            padding: 6px 10px;
-            font: 13px/1.4 Arial, sans-serif;
-            display: none;
-            z-index: 10;
-        }
-
-        .addRecordBtn {
-            background-color: #0079c1;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .addRecordBtn:hover {
-            background-color: #005a87;
-        }
-
-        #addRecordContainer {
-            margin: 10px;
-        }
-    </style>
     <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css" />
-    <script src="https://js.arcgis.com/4.26/"></script>
-    <script>
-        require([
-            "esri/Map",
-            "esri/views/MapView",
-            "esri/config",
-            "esri/widgets/Locate",
-            "esri/widgets/Search",
-            "esri/layers/FeatureLayer",
-            "esri/widgets/BasemapGallery",
-            "esri/widgets/Expand",
-            "esri/Basemap"
-        ], (Map, MapView, esriConfig, Locate, Search, FeatureLayer, BasemapGallery, Expand, Basemap) => {
-            esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurP99AuF0u6hFXE5XsMHKuzBSGN5LvVSYilawxafx85hn9PCGXebaJHWlitVBT5zeCUaAyEvqj1BxcDK_zJC-tVX6YCERGHXEpZz6YEPcefm_vmXsNbePUUZ7JAXpHdXjsnh5x7OFNgUY22Xi2rwI6cYzTClvMoxyiN9hd4ig364gzmVxs5mLuQQYqSwxcO8eUnY8D8k0W9Tj3o-WFWbJGlMs42rjT9Cgf1AsZxwet7SYAT1_FDERp6GX";
-
-            const map = new Map({
-                basemap: "national-geographic"
-            });
-
-            const view = new MapView({
-                map: map,
-                center: [-106.644568, 35.126358],
-                zoom: 9,
-                container: "viewDiv"
-            });
-
-            const addRecordContainer = document.getElementById("addRecordContainer");
-            view.ui.add(addRecordContainer, {
-                position: "top-right",
-                index: 0
-            });
-
-            const basemapChoices = [
-                "national-geographic"
-            ].map((id) => Basemap.fromId(id));
-
-            const basemapGallery = new BasemapGallery({
-                view: view,
-                source: basemapChoices
-            });
-
-            const expand = new Expand({
-                view: view,
-                content: basemapGallery
-            });
-
-            view.ui.add(expand, {
-                position: "top-right",
-                index: 1
-            });
-
-            const locateBtn = new Locate({
-                view: view
-            });
-
-            const layer = new FeatureLayer({
-                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_8baaa9466ddc47d8b1d8936a4a8dea15_results/FeatureServer"
-            });
-
-            map.add(layer);
-
-            view.ui.add(locateBtn, {
-                position: "top-left"
-            });
-
-            const searchWidget = new Search({
-                view: view,
-                suggestionsEnabled: true
-            });
-
-            view.ui.add(searchWidget, {
-                position: "bottom-left"
-            });
-
-            const searchError = document.getElementById("searchError");
-            let errorTimeout = null;
-            let minDisplayTime = null;
-
-            function showSearchError(message, minDuration = 5000) {
-                if (!searchError) {
-                    return;
-                }
-
-                if (errorTimeout) {
-                    clearTimeout(errorTimeout);
-                    errorTimeout = null;
-                }
-
-                searchError.textContent = message;
-                searchError.style.display = "block";
-                minDisplayTime = Date.now() + minDuration;
-            }
-
-            function hideSearchError() {
-                if (!searchError) {
-                    return;
-                }
-
-                const now = Date.now();
-                if (minDisplayTime && now < minDisplayTime) {
-                    const delay = minDisplayTime - now;
-                    errorTimeout = setTimeout(() => {
-                        searchError.style.display = "none";
-                        minDisplayTime = null;
-                    }, delay);
-                } else {
-                    searchError.style.display = "none";
-                    minDisplayTime = null;
-                }
-            }
-
-            searchWidget.on("search-start", (event) => {
-                const term = (event && event.searchTerm) ? event.searchTerm.trim() : "";
-                if (!term) {
-                    showSearchError("Please enter a valid address.");
-                } else {
-                    hideSearchError();
-                }
-            });
-
-            searchWidget.on("search-complete", (event) => {
-                const results = event && event.results ? event.results : [];
-                const hasAnyResult = results.some((source) => source.results && source.results.length > 0);
-                if (!hasAnyResult) {
-                    showSearchError("No results found. Please enter a valid address.");
-                } else {
-                    hideSearchError();
-                }
-            });
-
-            searchWidget.on("search-clear", () => {
-                hideSearchError();
-            });
-        });
-    </script>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="addRecordContainer">
-    <a href="https://arcg.is/1fi8nW0" target="_blank" class="addRecordBtn">Add Record</a>
+
+<div id="loginScreen" class="overlay">
+    <div class="login-box">
+        <h2>Welcome to Map Diary 🖤</h2>
+        <p>Log in to save your memories.</p>
+        <input type="email" id="emailInput" placeholder="Email" />
+        <input type="password" id="passwordInput" placeholder="Password" />
+        <button id="loginBtn">Log In / Sign Up</button>
+    </div>
 </div>
-<div id="viewDiv"></div>
-<div id="searchError" class="search-error" role="alert" aria-live="polite"></div>
+
+<div id="mainApp" class="app-container" style="display: none;">
+
+    <header class="app-header">
+        <h2>My Map Diary</h2>
+        <div id="userInfo">Not Logged In</div>
+    </header>
+
+    <div class="app-body">
+        <aside id="sidebar" class="sidebar">
+            <div id="searchContainer"></div>
+            <h3>My Journal Entries</h3>
+            <div id="entriesList">
+                <p>No entries yet. Tap the map to create one!</p>
+            </div>
+        </aside>
+
+        <div class="map-container">
+            <div id="viewDiv"></div>
+        </div>
+    </div>
+
+    <nav class="mobile-nav">
+        <button id="navMap">Map</button>
+        <button id="navList">Entries</button>
+        <button id="navProfile">Profile</button>
+    </nav>
+
+</div>
+
+<script src="https://js.arcgis.com/4.26/"></script>
+<script src="app.js"></script>
 </body>
 </html>
