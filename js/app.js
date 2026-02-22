@@ -16,42 +16,36 @@ function enterApp(userLabel) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const loginBtn = document.getElementById('loginBtn');
-    const guestBtn = document.getElementById('guestBtn');
-    const navMap = document.getElementById('navMap');
-    const navList = document.getElementById('navList');
-
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            const email = document.getElementById('emailInput').value;
-
-            if (email) {
-                enterApp(`User: ${email}`);
-            } else {
-                alert("Please enter an email to log in!");
-            }
-        });
+document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+        return;
     }
 
-    if (guestBtn) {
-        guestBtn.addEventListener('click', () => {
-            enterApp('Guest mode: data will not be saved');
-        });
+    if (target.closest('#loginBtn')) {
+        const email = document.getElementById('emailInput').value;
+        if (email) {
+            enterApp(`User: ${email}`);
+        } else {
+            alert("Please enter an email to log in!");
+        }
+        return;
     }
 
-    if (navMap) {
-        navMap.addEventListener('click', () => {
-            document.getElementById('sidebar').classList.remove('active');
-            document.querySelector('.map-container').style.display = 'block';
-        });
+    if (target.closest('#guestBtn')) {
+        enterApp('Guest mode: data will not be saved');
+        return;
     }
 
-    if (navList) {
-        navList.addEventListener('click', () => {
-            document.getElementById('sidebar').classList.add('active');
-            document.querySelector('.map-container').style.display = 'none';
-        });
+    if (target.closest('#navMap')) {
+        document.getElementById('sidebar').classList.remove('active');
+        document.querySelector('.map-container').style.display = 'block';
+        return;
+    }
+
+    if (target.closest('#navList')) {
+        document.getElementById('sidebar').classList.add('active');
+        document.querySelector('.map-container').style.display = 'none';
     }
 });
 
