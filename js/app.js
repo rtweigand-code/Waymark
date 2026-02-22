@@ -434,6 +434,8 @@ function initMap() {
             container: 'viewDiv'
         });
 
+        view.popup.autoOpenEnabled = false;
+
         appView = view;
 
         new Search({ view, container: 'searchContainer' });
