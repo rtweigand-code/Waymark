@@ -7,35 +7,52 @@ function enterApp(userLabel) {
     document.getElementById('mainApp').style.display = 'flex';
     document.getElementById('userInfo').innerText = userLabel;
 
+    document.getElementById('sidebar').classList.remove('active');
+    document.querySelector('.map-container').style.display = 'block';
+
     if (!mapInitialized) {
         initMap();
         mapInitialized = true;
     }
 }
 
-document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('emailInput').value;
+document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('loginBtn');
+    const guestBtn = document.getElementById('guestBtn');
+    const navMap = document.getElementById('navMap');
+    const navList = document.getElementById('navList');
 
-    if (email) {
-        enterApp(`User: ${email}`);
-    } else {
-        alert("Please enter an email to log in!");
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('emailInput').value;
+
+            if (email) {
+                enterApp(`User: ${email}`);
+            } else {
+                alert("Please enter an email to log in!");
+            }
+        });
     }
-});
 
-document.getElementById('guestBtn').addEventListener('click', () => {
-    enterApp('Guest mode: data will not be saved');
-});
+    if (guestBtn) {
+        guestBtn.addEventListener('click', () => {
+            enterApp('Guest mode: data will not be saved');
+        });
+    }
 
-// Mobile Navigation Logic (Switching between Map and Entries List)
-document.getElementById('navMap').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('active');
-    document.querySelector('.map-container').style.display = 'block';
-});
+    if (navMap) {
+        navMap.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.map-container').style.display = 'block';
+        });
+    }
 
-document.getElementById('navList').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.add('active');
-    document.querySelector('.map-container').style.display = 'none';
+    if (navList) {
+        navList.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('active');
+            document.querySelector('.map-container').style.display = 'none';
+        });
+    }
 });
 
 // 2. Esri Map Initialization

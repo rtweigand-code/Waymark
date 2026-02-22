@@ -32,6 +32,10 @@ html, body {
     border: none; border-radius: 5px; cursor: pointer;
 }
 
+#guestBtn {
+    margin-top: 14px;
+}
+
 /* App Layout */
 .app-container {
     display: flex; flex-direction: column; height: 100%;
