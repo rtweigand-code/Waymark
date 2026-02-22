@@ -14,6 +14,7 @@ const pointStore = new Map();
 let appView = null;
 let appGraphicsLayer = null;
 let GraphicCtor = null;
+let activeSelectorPointKey = null;
 
 function enterApp(userLabel, guestMode) {
     isGuestMode = guestMode;
@@ -153,7 +154,8 @@ function buildEntryPopupTemplate(entry) {
         actions: [
             { title: 'Read full entry', id: 'read-full-entry', className: 'esri-icon-documentation' },
             { title: 'Edit entry', id: 'edit-entry', className: 'esri-icon-edit' },
-            { title: 'Add new entry to same point', id: 'add-same-point', className: 'esri-icon-plus-circled' }
+            { title: 'Add new entry to same point', id: 'add-same-point', className: 'esri-icon-plus-circled' },
+            { title: 'Close', id: 'close-popup', className: 'esri-icon-close' }
         ]
     };
 }
@@ -162,6 +164,8 @@ function openEntryPopup(pointRecord, entry, location) {
     if (!pointRecord.graphic) {
         return;
     }
+
+    activeSelectorPointKey = null;
 
     pointRecord.graphic.attributes = {
         pointKey: pointRecord.pointKey,
@@ -177,29 +181,24 @@ function openEntryPopup(pointRecord, entry, location) {
 }
 
 function openEntrySelectorPopup(pointRecord, location) {
-    const container = document.createElement('div');
-    const prompt = document.createElement('p');
-    prompt.textContent = 'Select an entry:';
-    container.appendChild(prompt);
+    activeSelectorPointKey = pointRecord.pointKey;
 
-    const list = document.createElement('ul');
-    pointRecord.entries.forEach((entry, index) => {
-        const item = document.createElement('li');
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'popup-entry-option';
-        button.textContent = entry.title || `Entry ${index + 1}`;
-        button.addEventListener('click', () => {
-            openEntryPopup(pointRecord, entry, location || pointRecord.mapPoint);
-        });
-        item.appendChild(button);
-        list.appendChild(item);
+    const selectorActions = pointRecord.entries.map((entry, index) => ({
+        title: entry.title || `Entry ${index + 1}`,
+        id: `select-entry-${entry.id}`,
+        className: 'esri-icon-documentation'
+    }));
+
+    selectorActions.push({
+        title: 'Close',
+        id: 'close-popup',
+        className: 'esri-icon-close'
     });
-    container.appendChild(list);
 
     appView.popup.open({
         title: `Entries at ${pointRecord.lat}, ${pointRecord.lon}`,
-        content: container,
+        content: 'Select an entry',
+        actions: selectorActions,
         location: location || pointRecord.mapPoint
     });
 }
@@ -464,6 +463,26 @@ function initMap() {
         });
 
         view.popup.on('trigger-action', (popupEvent) => {
+            if (popupEvent.action.id === 'close-popup') {
+                view.popup.close();
+                activeSelectorPointKey = null;
+                return;
+            }
+
+            if (popupEvent.action.id.startsWith('select-entry-')) {
+                if (!activeSelectorPointKey || !pointStore.has(activeSelectorPointKey)) {
+                    return;
+                }
+
+                const pointRecord = pointStore.get(activeSelectorPointKey);
+                const entryId = Number(popupEvent.action.id.replace('select-entry-', ''));
+                const selectedEntry = findEntryById(pointRecord, entryId);
+                if (selectedEntry) {
+                    openEntryPopup(pointRecord, selectedEntry, view.popup.location || pointRecord.mapPoint);
+                }
+                return;
+            }
+
             const selectedGraphic = view.popup.selectedFeature;
             if (!selectedGraphic) {
                 return;
@@ -496,15 +515,6 @@ function initMap() {
                     mapPoint: pointRecord.mapPoint
                 };
                 openEntryModal('new', pointRecord, null);
-            }
-        });
-
-        view.on('click', async (event) => {
-            const hitResponse = await view.hitTest(event);
-            const graphicResult = hitResponse.results.find((result) => result.graphic.layer === appGraphicsLayer);
-
-            if (!graphicResult) {
-                view.popup.close();
             }
         });
 
