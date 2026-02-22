@@ -82,6 +82,23 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    const popupEntryLink = target.closest('.popup-entry-link');
+    if (popupEntryLink) {
+        event.preventDefault();
+        const pointKey = popupEntryLink.getAttribute('data-point-key');
+        const entryId = Number(popupEntryLink.getAttribute('data-entry-id'));
+        if (!pointStore.has(pointKey)) {
+            return;
+        }
+
+        const pointRecord = pointStore.get(pointKey);
+        const selectedEntry = findEntryById(pointRecord, entryId);
+        if (selectedEntry) {
+            openEntryPopup(pointRecord, selectedEntry, pointRecord.mapPoint);
+        }
+        return;
+    }
+
     const editorBtn = target.closest('.editor-btn');
     if (editorBtn) {
         applyEditorCommand(editorBtn.getAttribute('data-cmd'));
@@ -109,6 +126,15 @@ function truncateText(text, maxLength = 180) {
     return `${text.slice(0, maxLength)}...`;
 }
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function getOrCreatePointRecord(coords) {
     const pointKey = buildPointKey(coords.lat, coords.lon);
     if (!pointStore.has(pointKey)) {
@@ -131,20 +157,14 @@ function getLatestEntry(pointRecord) {
     return pointRecord.entries[pointRecord.entries.length - 1];
 }
 
-function updatePointGraphic(pointRecord) {
-    const latestEntry = getLatestEntry(pointRecord);
-    if (!latestEntry) {
-        return;
-    }
-
-    const preview = truncateText(latestEntry.textPlain, 180);
-
-    const popupTemplate = {
-        title: latestEntry.title,
+function buildEntryPopupTemplate(entry) {
+    const preview = truncateText(entry.textPlain, 180);
+    return {
+        title: entry.title,
         content: `
             <div>
-                <p>${preview}</p>
-                ${latestEntry.textPlain.length > 180 ? '<p><em>Use "Read full entry" below to view everything.</em></p>' : ''}
+                <p>${escapeHtml(preview)}</p>
+                ${entry.textPlain.length > 180 ? '<p><em>Use "Read full entry" below to view everything.</em></p>' : ''}
             </div>
         `,
         actions: [
@@ -153,6 +173,56 @@ function updatePointGraphic(pointRecord) {
             { title: 'Add new entry to same point', id: 'add-same-point', className: 'esri-icon-plus-circled' }
         ]
     };
+}
+
+function openEntryPopup(pointRecord, entry, location) {
+    if (!pointRecord.graphic) {
+        return;
+    }
+
+    pointRecord.graphic.attributes = {
+        pointKey: pointRecord.pointKey,
+        selectedEntryId: entry.id,
+        title: entry.title
+    };
+    pointRecord.graphic.popupTemplate = buildEntryPopupTemplate(entry);
+
+    appView.popup.open({
+        features: [pointRecord.graphic],
+        location: location || pointRecord.mapPoint
+    });
+}
+
+function openEntrySelectorPopup(pointRecord, location) {
+    const entryLinks = pointRecord.entries
+        .map((entry, index) => `
+            <li>
+                <a href="#" class="popup-entry-link" data-point-key="${escapeHtml(pointRecord.pointKey)}" data-entry-id="${entry.id}">
+                    ${escapeHtml(entry.title || `Entry ${index + 1}`)}
+                </a>
+            </li>
+        `)
+        .join('');
+
+    appView.popup.open({
+        title: `Entries at ${pointRecord.lat}, ${pointRecord.lon}`,
+        content: `
+            <div>
+                <p>Select an entry:</p>
+                <ul>${entryLinks}</ul>
+            </div>
+        `,
+        location: location || pointRecord.mapPoint
+    });
+}
+
+function updatePointGraphic(pointRecord) {
+    const latestEntry = getLatestEntry(pointRecord);
+    if (!latestEntry) {
+        return;
+    }
+
+    const popupTemplate = buildEntryPopupTemplate(latestEntry);
 
     if (!pointRecord.graphic) {
         pointRecord.graphic = new GraphicCtor({
@@ -164,7 +234,7 @@ function updatePointGraphic(pointRecord) {
             },
             attributes: {
                 pointKey: pointRecord.pointKey,
-                latestEntryId: latestEntry.id,
+                selectedEntryId: latestEntry.id,
                 title: latestEntry.title
             },
             popupTemplate
@@ -173,7 +243,7 @@ function updatePointGraphic(pointRecord) {
     } else {
         pointRecord.graphic.attributes = {
             pointKey: pointRecord.pointKey,
-            latestEntryId: latestEntry.id,
+            selectedEntryId: latestEntry.id,
             title: latestEntry.title
         };
         pointRecord.graphic.popupTemplate = popupTemplate;
@@ -415,7 +485,7 @@ function initMap() {
             }
 
             const pointRecord = pointStore.get(pointKey);
-            const selectedEntry = findEntryById(pointRecord, selectedGraphic.attributes.latestEntryId);
+            const selectedEntry = findEntryById(pointRecord, selectedGraphic.attributes.selectedEntryId);
 
             if (!selectedEntry) {
                 return;
@@ -444,10 +514,20 @@ function initMap() {
             const graphicResult = hitResponse.results.find((result) => result.graphic.layer === appGraphicsLayer);
 
             if (graphicResult) {
-                view.popup.open({
-                    features: [graphicResult.graphic],
-                    location: event.mapPoint
-                });
+                const pointKey = graphicResult.graphic.attributes.pointKey;
+                if (!pointStore.has(pointKey)) {
+                    return;
+                }
+
+                const pointRecord = pointStore.get(pointKey);
+                if (pointRecord.entries.length > 1) {
+                    openEntrySelectorPopup(pointRecord, event.mapPoint);
+                } else {
+                    const latestEntry = getLatestEntry(pointRecord);
+                    if (latestEntry) {
+                        openEntryPopup(pointRecord, latestEntry, event.mapPoint);
+                    }
+                }
                 return;
             }
 
