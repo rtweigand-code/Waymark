@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <!--meta for mobile first design -->
+        <meta charset="utf-8" /> <!--utf 8 ensures diverse character sets are allowed -->
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" /> <!--controls zoom on the page-->
+        <title>Data Collector for AGOL</title>
+    <!--added style section for search error feature-->
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+        .search-error {
+            position: absolute;
+            top: 58px;
+            right: 15px;
+            background: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font: 13px/1.4 Arial, sans-serif;
+            display: none;
+            z-index: 10;
+        }
+        .addRecordBtn {
+            position: absolute;
+            z-index: 10;
+            top: 10px;
+            right: 10px;
+            background-color: #0079c1;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .addRecordBtn:hover {
+            background-color: #005a87;
+        }
+    </style>
+    <!-- the addRecordBtn sections add styling and tooltips to the survey button-->
+    <!--importing the CSS and libraries for esri.js-->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.26/"></script>
+    <!--loading modules from the API-->
+    <script>
+        require([ "esri/Map", "esri/views/MapView", "esri/config","esri/widgets/Locate", "esri/widgets/Search", "esri/layers/FeatureLayer" ], (Map, MapView, esriConfig, Locate, Search, FeatureLayer) => {
+            esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurP99AuF0u6hFXE5XsMHKuzBSGN5LvVSYilawxafx85hn9PCGXebaJHWlitVBT5zeCUaAyEvqj1BxcDK_zJC-tVX6YCERGHXEpZz6YEPcefm_vmXsNbePUUZ7JAXpHdXjsnh5x7OFNgUY22Xi2rwI6cYzTClvMoxyiN9hd4ig364gzmVxs5mLuQQYqSwxcO8eUnY8D8k0W9Tj3o-WFWbJGlMs42rjT9Cgf1AsZxwet7SYAT1_FDERp6GX";
+            const map = new Map({
+                basemap: "midcentury"
+            });
+            const view = new MapView({
+                map: map,
+                center: [-106.644568, 35.126358], // centers in Albuquerque, NM
+                zoom: 9,
+                container: "viewDiv"
+            });
+            const locateBtn = new Locate({
+                view: view,
+            });
+            // Create featurelayer from feature service
+            const layer = new FeatureLayer({
+                // URL to the service
+                url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_8baaa9466ddc47d8b1d8936a4a8dea15_results/FeatureServer" //Your item URL Goes Here
+            });
+            //add layer to map
+            map.add(layer);
+            // Add the locate widget to the top left corner of the view
+            view.ui.add(locateBtn, {
+                position: "top-left"
+            });
+            //add in search widget
+            const searchWidget = new Search({
+                view: view,
+                suggestionsEnabled: true, //makes sure the autofill for addresses is working
+            });
+
+            //puts search widget under the other top right widget
+            view.ui.add(searchWidget, {
+                position: "bottom-left"
+            });
+            // adding search error handling
+            const searchError = document.getElementById("searchError");
+            let errorTimeout = null;
+            let minDisplayTime = null;
+
+            function showSearchError(message, minDuration = 5000) {
+                if (!searchError) {
+                    return;
+                }
+                // Clear any existing timeout
+                if (errorTimeout) {
+                    clearTimeout(errorTimeout);
+                    errorTimeout = null;
+                }
+
+                searchError.textContent = message;
+                searchError.style.display = "block";
+
+                // Set minimum display time
+                minDisplayTime = Date.now() + minDuration;
+            }
+
+            function hideSearchError() {
+                if (!searchError) {
+                    return;
+                }
+
+                // Check if minimum display time has passed
+                const now = Date.now();
+                if (minDisplayTime && now < minDisplayTime) {
+                    // Wait until minimum display time is reached
+                    const delay = minDisplayTime - now;
+                    errorTimeout = setTimeout(() => {
+                        searchError.style.display = "none";
+                        minDisplayTime = null;
+                    }, delay);
+                } else {
+                    searchError.style.display = "none";
+                    minDisplayTime = null;
+                }
+            }
+
+            searchWidget.on("search-start", (event) => {
+                const term = (event && event.searchTerm) ? event.searchTerm.trim() : "";
+                if (!term) {
+                    showSearchError("Please enter a valid address.");// alerts user to enter a valid address
+                } else {
+                    hideSearchError();
+                }
+            });
+
+            searchWidget.on("search-complete", (event) => {
+                const results = event && event.results ? event.results : [];
+                const hasAnyResult = results.some((source) => source.results && source.results.length > 0);
+                if (!hasAnyResult) {
+                    showSearchError("No results found. Please enter a valid address.");// alternative error declaration
+                } else {
+                    hideSearchError();
+                }
+            });
+
+            searchWidget.on("search-clear", () => {
+                hideSearchError();
+            });
+        });
+    </script>
+</head>
+<body>
+<a href="https://arcg.is/1fi8nW0"target="_blank" class="addRecordBtn">Add Record</a>
+<div id="viewDiv"></div>
+<div id="searchError" class="search-error" role="alert" aria-live="polite"></div>
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>
