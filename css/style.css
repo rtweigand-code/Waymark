@@ -2,7 +2,7 @@
 html, body {
     padding: 0; margin: 0;
     height: 100%; width: 100%;
-    font-family: sans-serif;
+    font-family: 'Lora', serif;
     background-color: #f4f4f4;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -28,6 +28,10 @@ input, textarea {
     background: white; padding: 30px;
     border-radius: 10px; text-align: center;
     width: 85%; max-width: 320px;
+}
+
+.login-box h2 {
+    font-family: 'Alice', serif;
 }
 /* Login Box Elements */
 .login-box input {
@@ -65,6 +69,7 @@ input, textarea {
     margin-top: 0;
     margin-bottom: 12px;
     font-size: 1.2em;
+    font-family: 'Alice', serif;
 }
 /* Entry Modal Elements */
 .entry-coords {
@@ -164,6 +169,7 @@ input, textarea {
     overflow-y: auto;
     background: #fff;
     font-size: 16px;
+    font-family: 'Lora', serif;
     -webkit-appearance: none;
     appearance: none;
 }
@@ -235,6 +241,7 @@ input, textarea {
     font-size: 1.1em;
     flex: 1;
     min-width: fit-content;
+    font-family: 'Alice', serif;
 }
 
 .app-header > div:last-child {
@@ -269,6 +276,7 @@ input, textarea {
     margin: 0 0 12px 0;
     font-size: 1em;
     color: #a43855;
+    font-family: 'Alice', serif;
 }
 
 .sidebar #searchContainer {
@@ -361,6 +369,7 @@ input, textarea {
     font-size: 1.1em;
     color: #a43855;
     flex: 1;
+    font-family: 'Alice', serif;
 }
 
 /* Edit button in entry detail header */
@@ -385,11 +394,13 @@ input, textarea {
     color: #666;
     font-size: 0.85em;
     margin-bottom: 12px;
+    font-family: 'Lora', serif;
 }
 /* Entry content styling */
 .entry-detail-content {
     line-height: 1.6;
     color: #333;
+    font-family: 'Lora', serif;
 }
 /* Row layout for map hint and entry detail options */
 .map-widget-row {
@@ -625,4 +636,13 @@ input, textarea {
 .story-btn-small:hover {
     background: #a43855;
     color: white;
+}
+
+/* Typography - Alice for headers, Lora for body text */
+h4 {
+    font-family: 'Alice', serif;
+}
+
+p, small {
+    font-family: 'Lora', serif;
 }

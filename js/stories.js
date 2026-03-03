@@ -147,7 +147,7 @@ function updateStoryMapGraphics(story) {
 
         const lineGraphic = new GraphicCtor({
             geometry: polyline,
-            symbol: { type: "simple-line", color: [164, 56, 85, 0.9], width: 3, style: "short-dot" }
+            symbol: { type: "simple-line", color: [164, 56, 85, 0.95], width: 4, style: "solid" }
         });
         story.graphicsLayer.add(lineGraphic);
 
