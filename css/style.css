@@ -287,7 +287,8 @@ input, textarea {
 /* Map div should fill the container */
 #viewDiv { 
     height: 100%; 
-    width: 100%; 
+    width: 100%;
+    position: relative;
 }
 /* Hint box on the map */
 .map-hint {

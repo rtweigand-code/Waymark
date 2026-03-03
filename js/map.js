@@ -163,14 +163,46 @@ function initMap() {
         const LONG_PRESS_DURATION = 600; // milliseconds
         const MOVE_THRESHOLD = 10; // pixels
         
-        view.on('pointer-down', (event) => {
-            longPressStartPoint = { x: event.x, y: event.y, mapPoint: event.mapPoint };
+        // Use standard DOM events on the container for better compatibility
+        view.container.addEventListener('mousedown', handlePressStart);
+        view.container.addEventListener('touchstart', handlePressStart);
+        view.container.addEventListener('mousemove', handlePressMove);
+        view.container.addEventListener('touchmove', handlePressMove);
+        view.container.addEventListener('mouseup', handlePressEnd);
+        view.container.addEventListener('touchend', handlePressEnd);
+        view.container.addEventListener('touchcancel', handlePressEnd);
+        
+        function handlePressStart(event) {
+            // Get coordinates from mouse or touch event
+            let clientX, clientY;
+            if (event.type.startsWith('touch')) {
+                if (event.touches.length > 0) {
+                    clientX = event.touches[0].clientX;
+                    clientY = event.touches[0].clientY;
+                } else {
+                    return;
+                }
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+            
+            // Convert to screen coordinates relative to the view
+            const rect = view.container.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            // Get the map point
+            const mapPoint = view.toMap({ x, y });
+            if (!mapPoint) return;
+            
+            longPressStartPoint = { x, y, clientX, clientY, mapPoint };
             
             // Create visual indicator
             longPressIndicator = document.createElement('div');
             longPressIndicator.className = 'long-press-indicator';
-            longPressIndicator.style.left = event.x + 'px';
-            longPressIndicator.style.top = event.y + 'px';
+            longPressIndicator.style.left = x + 'px';
+            longPressIndicator.style.top = y + 'px';
             view.container.appendChild(longPressIndicator);
             
             longPressTimer = setTimeout(() => {
@@ -198,13 +230,26 @@ function initMap() {
                 longPressTimer = null;
                 longPressStartPoint = null;
             }, LONG_PRESS_DURATION);
-        });
+        }
         
-        view.on('pointer-move', (event) => {
+        function handlePressMove(event) {
             // Cancel long press if user moves too much
             if (longPressTimer && longPressStartPoint) {
-                const dx = event.x - longPressStartPoint.x;
-                const dy = event.y - longPressStartPoint.y;
+                let clientX, clientY;
+                if (event.type.startsWith('touch')) {
+                    if (event.touches.length > 0) {
+                        clientX = event.touches[0].clientX;
+                        clientY = event.touches[0].clientY;
+                    } else {
+                        return;
+                    }
+                } else {
+                    clientX = event.clientX;
+                    clientY = event.clientY;
+                }
+                
+                const dx = clientX - longPressStartPoint.clientX;
+                const dy = clientY - longPressStartPoint.clientY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance > MOVE_THRESHOLD) {
@@ -218,9 +263,9 @@ function initMap() {
                     }
                 }
             }
-        });
+        }
         
-        view.on('pointer-up', (event) => {
+        function handlePressEnd(event) {
             // Cancel long press on release
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
@@ -232,6 +277,6 @@ function initMap() {
                 longPressIndicator.remove();
                 longPressIndicator = null;
             }
-        });
+        }
     });
 }
