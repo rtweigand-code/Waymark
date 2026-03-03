@@ -124,9 +124,14 @@ function initMap() {
                 openEntryModal('new', pointRecord, null);
             }
         });
-        // Set up a listener for double-click events on the view, which allows users to create new entries by double-clicking on the map
-        view.on('double-click', async (event) => {
-            event.stopPropagation();
+        // Set up a listener for single-click events on the view to select existing entries
+        // This is more mobile-friendly than double-click
+        view.on('click', async (event) => {
+            // Don't trigger if we're in the middle of a drag operation
+            if (isDraggingLocationIcon) {
+                return;
+            }
+            
             const hitResponse = await view.hitTest(event);
             const graphicResult = hitResponse.results.find((result) => {
                 const graphic = result && result.graphic ? result.graphic : null;
@@ -135,14 +140,15 @@ function initMap() {
                 }
                 return !!graphic.attributes.pointKey && pointStore.has(graphic.attributes.pointKey);
             });
-            // If the user double-clicked on an existing graphic that has a pointKey attribute, we want to open the appropriate popup for that point
+            
+            // If the user clicked on an existing graphic that has a pointKey attribute, show the popup for that point
             if (graphicResult) {
                 const pointKey = graphicResult.graphic.attributes.pointKey;
                 if (!pointStore.has(pointKey)) {
                     return;
                 }
-                // If the point has multiple entries, we show the entry selector popup
-                // if it has only one entry, we go straight to showing the entry detail popup
+                // If the point has multiple entries, show the entry selector popup
+                // if it has only one entry, show the entry popup
                 const pointRecord = pointStore.get(pointKey);
                 if (pointRecord.entries.length > 1) {
                     openEntrySelectorPopup(pointRecord, event.mapPoint);
@@ -152,20 +158,57 @@ function initMap() {
                         openEntryPopup(pointRecord, latestEntry, event.mapPoint);
                     }
                 }
+            }
+        });
+        
+        // Set up drag and drop handlers for the map to accept the dragged location icon
+        view.container.addEventListener('dragover', (event) => {
+            // Only accept if we're dragging the location icon
+            if (isDraggingLocationIcon) {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'copy';
+                view.container.style.opacity = '0.9';
+            }
+        });
+        
+        view.container.addEventListener('dragleave', (event) => {
+            if (isDraggingLocationIcon && event.target === view.container) {
+                view.container.style.opacity = '1';
+            }
+        });
+        
+        view.container.addEventListener('drop', async (event) => {
+            if (!isDraggingLocationIcon) {
                 return;
             }
-            // If the user double-clicked on an empty area of the map, we want to open the entry modal for creating a new entry at that location
+            
+            event.preventDefault();
+            view.container.style.opacity = '1';
+            isDraggingLocationIcon = false;
+            
+            // Get the map point at the drop location
+            const mapPoint = view.toMap({
+                x: event.clientX,
+                y: event.clientY
+            });
+            
+            if (!mapPoint) {
+                return;
+            }
+            
+            // Show guest mode warning if applicable
             if (isGuestMode && !guestEntryWarningShown) {
                 alert('Guest mode note: diary entries are stored temporarily and will be deleted if you refresh the page.');
                 guestEntryWarningShown = true;
             }
-            // Store the coordinates of the click event in currentClickCoords, rounding them for consistency and including the original mapPoint for later use
+            
+            // Create a new entry at the drop location
             currentClickCoords = {
-                lat: roundCoord(event.mapPoint.latitude),
-                lon: roundCoord(event.mapPoint.longitude),
-                mapPoint: event.mapPoint
+                lat: roundCoord(mapPoint.latitude),
+                lon: roundCoord(mapPoint.longitude),
+                mapPoint: mapPoint
             };
-            // Get or create a point record for the clicked coordinates, and then open the entry modal for creating a new entry at that point
+            
             const pointRecord = getOrCreatePointRecord(currentClickCoords);
             openEntryModal('new', pointRecord, null);
         });

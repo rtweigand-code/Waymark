@@ -4,6 +4,15 @@ html, body {
     height: 100%; width: 100%;
     font-family: sans-serif;
     background-color: #f4f4f4;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Prevent text selection on buttons but allow in inputs */
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 /* Login Overlay */
@@ -18,36 +27,62 @@ html, body {
 .login-box {
     background: white; padding: 30px;
     border-radius: 10px; text-align: center;
-    width: 80%; max-width: 300px;
+    width: 85%; max-width: 320px;
 }
 /* Login Box Elements */
 .login-box input {
-    width: 90%; padding: 10px; margin: 10px 0;
+    width: 90%; padding: 12px; margin: 10px 0;
     border: 1px solid #ccc; border-radius: 5px;
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
 }
 /* Login Button */
 .login-box button {
-    width: 100%; padding: 10px;
+    width: 100%; padding: 12px;
     background-color: #333; color: white;
     border: none; border-radius: 5px; cursor: pointer;
+    font-size: 16px;
+    margin-top: 8px;
+    min-height: 48px;
+    font-weight: bold;
 }
 /* Modal for Entry Editor */
 .entry-modal-box {
     background: white;
-    padding: 20px;
+    padding: 16px;
     border-radius: 12px;
-    width: 90vw;
-    height: 85vh;
+    width: 95vw;
+    height: 90vh;
     max-width: 1000px;
     display: flex;
     flex-direction: column;
     text-align: left;
+    max-height: 95vh;
+}
+
+.entry-modal-box h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.2em;
 }
 /* Entry Modal Elements */
 .entry-coords {
     font-size: 0.85em;
     color: #666;
     margin: 0 0 12px 0;
+}
+
+#entryTitle {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
 }
 /* Image upload section */
 .image-upload-section {
@@ -99,17 +134,26 @@ html, body {
 .editor-toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin: 8px 0;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
 }
 /* Basic styling for toolbar buttons */
 .editor-toolbar .editor-btn {
     width: auto;
-    padding: 6px 10px;
-    background-color: #f0f0f0;
+    padding: 8px 12px;
+    background-color: #fff;
     color: #333;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    min-height: 36px;
+    -webkit-appearance: none;
+    appearance: none;
 }
 /*Entry Editor */
 .entry-editor {
@@ -119,11 +163,15 @@ html, body {
     padding: 12px;
     overflow-y: auto;
     background: #fff;
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
 }
 /* Remove default focus outline and add a subtle border color change on focus */
 .entry-editor:focus {
     outline: none;
     border-color: #a43855;
+    box-shadow: 0 0 4px rgba(164, 56, 85, 0.2);
 }
 /* Modal Action Buttons */
 .entry-modal-actions {
@@ -134,15 +182,34 @@ html, body {
 /* Save and Cancel buttons */
 .entry-modal-actions button {
     width: auto;
-    padding: 10px 16px;
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 16px;
+    min-height: 48px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    -webkit-appearance: none;
+    appearance: none;
 }
 /* Save button in burgundy, Cancel in neutral gray */
 .save-btn {
     background-color: #a43855;
+    color: white;
+}
+
+.save-btn:active {
+    background-color: #8a2f46;
 }
 
 .cancel-btn {
     background-color: #999;
+    color: white;
+}
+
+.cancel-btn:active {
+    background-color: #888;
 }
 /* Guest Button on Login Screen */
 #guestBtn {
@@ -156,31 +223,119 @@ html, body {
 /* Header with app title and mobile menu button */
 .app-header {
     background-color: #a43855; color: white;
-    padding: 10px 20px; display: flex;
+    padding: 10px 12px; display: flex;
     justify-content: space-between; align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 50px;
+}
+
+.app-header h2 {
+    margin: 0;
+    font-size: 1.1em;
+    flex: 1;
+    min-width: fit-content;
+}
+
+.app-header > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* Draggable location icon styling */
+.drag-location-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.drag-location-container:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.drag-location-container:active {
+    cursor: grabbing;
+}
+
+.drag-location-container.dragging {
+    opacity: 0.7;
+    transform: scale(1.05);
+}
+
+.drag-location-icon {
+    font-size: 1.2em;
+    display: inline-block;
+}
+
+.drag-location-label {
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+/* Hide label on mobile */
+@media (max-width: 560px) {
+    .drag-location-label {
+        display: none;
+    }
+    .drag-location-container {
+        padding: 6px 8px;
+    }
 }
 
 .app-body {
-    display: flex; flex: 1; overflow: hidden;
+    display: flex; 
+    flex: 1; 
+    overflow: hidden;
     position: relative;
+    flex-direction: column;
 }
 
-/* On mobile, sidebar is hidden by default*/
+/* On mobile, sidebar is hidden by default and stacked above map */
 .sidebar {
-    display: none; width: 100%;
-    background-color: white; padding: 10px;
-    overflow-y: auto; z-index: 10;
+    display: none; 
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    background-color: white; 
+    padding: 12px;
+    overflow-y: auto; 
+    z-index: 10;
+    border-bottom: 1px solid #ddd;
+}
+
+.sidebar h3 {
+    margin: 0 0 12px 0;
+    font-size: 1em;
+    color: #a43855;
+}
+
+.sidebar #searchContainer {
+    margin-bottom: 12px;
 }
 
 /* Toggle class for mobile view */
 .sidebar.active { display: block; }
 
 .map-container {
-    flex: 1; height: 100%; width: 100%;
+    flex: 1; 
+    height: 100%; 
+    width: 100%;
     position: relative;
 }
 /* Map div should fill the container */
-#viewDiv { height: 100%; width: 100%; }
+#viewDiv { 
+    height: 100%; 
+    width: 100%; 
+}
 /* Hint box on the map */
 .map-hint {
     position: absolute;
@@ -197,12 +352,16 @@ html, body {
 /* Entry Detail Panel */
 .entry-detail-panel {
     display: none;
-    width: 320px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     background: #fff;
-    border-left: 1px solid #ccc;
     padding: 12px;
     overflow-y: auto;
-    z-index: 5;
+    z-index: 25;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
 }
 /* Show the entry detail panel when active */
 .entry-detail-panel.active {
@@ -213,24 +372,43 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 12px;
 }
+
+.entry-detail-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #a43855;
+    flex: 1;
+}
+
 /* Edit button in entry detail header */
 .entry-detail-header button {
     width: auto;
-    padding: 6px 10px;
-    background: #999;
+    padding: 8px 14px;
+    background: #a43855;
     color: #fff;
     border: none;
     border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    min-height: 40px;
 }
+
+.entry-detail-header button:active {
+    background: #8a2f46;
+}
+
 /* Entry metadata styling */
 .entry-detail-meta {
     color: #666;
     font-size: 0.85em;
+    margin-bottom: 12px;
 }
 /* Entry content styling */
 .entry-detail-content {
-    line-height: 1.5;
+    line-height: 1.6;
+    color: #333;
 }
 /* Row layout for map hint and entry detail options */
 .map-widget-row {
@@ -252,40 +430,168 @@ html, body {
 
 /* Mobile Bottom Navigation */
 .mobile-nav {
-    display: flex; justify-content: space-around;
-    background-color: white; border-top: 1px solid #ccc;
-    padding: 10px;
+    display: flex; 
+    justify-content: space-around;
+    background-color: white; 
+    border-top: 1px solid #ddd;
+    padding: 8px 0;
+    height: auto;
 }
 /* Buttons in the mobile nav */
 .mobile-nav button {
-    background: none; border: none; font-size: 16px;
-    color: #a43855; cursor: pointer;
+    background: none; 
+    border: none; 
+    font-size: 18px;
+    color: #a43855; 
+    cursor: pointer;
+    padding: 8px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-nav button:active {
+    background-color: rgba(164, 56, 85, 0.1);
+}
+
+.mobile-nav button.active {
+    color: #a43855;
+    border-top: 3px solid #a43855;
 }
 
 /* Desktop Styles */
 @media (min-width: 768px) {
-    .app-body { flex-direction: row; }
+    .app-body { 
+        flex-direction: row; 
+    }
 
     .sidebar {
-        display: flex; /* Always show on desktop */
+        display: flex !important; /* Always show on desktop */
         flex-direction: column;
         width: 350px;
+        height: auto;
+        max-height: none;
         border-right: 1px solid #ccc;
+        border-bottom: none;
+        padding: 16px;
+    }
+
+    .sidebar h3 {
+        font-size: 1.1em;
     }
 
     .mobile-nav {
         display: none; /* Hide bottom nav on desktop */
     }
+
+    .entry-detail-panel {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 320px;
+        height: 100%;
+        border-left: 1px solid #ccc;
+        box-shadow: none;
+    }
+
+    .entry-detail-panel.active {
+        display: block;
+    }
+
+    .app-header {
+        padding: 12px 20px;
+    }
+
+    .app-header h2 {
+        font-size: 1.3em;
+    }
+
+    .drag-location-label {
+        display: inline;
+    }
+
+    .entry-modal-box {
+        width: 90vw;
+        height: 85vh;
+    }
+
+    /* Story edit modal two-column layout on desktop */
+    #storyEditModal .entry-modal-box > div[style*="display: flex"] {
+        flex-direction: row;
+    }
 }
-/* On mobile, the entry detail panel should overlay the map */
+
+/* Mobile-specific tweaks for smaller screens */
 @media (max-width: 767px) {
     .entry-detail-panel.active {
         position: absolute;
         right: 0;
         top: 0;
+        width: 100%;
         height: 100%;
-        max-width: 85vw;
+        max-width: none;
         z-index: 25;
+        animation: slideInFromRight 0.3s ease;
+    }
+
+    @keyframes slideInFromRight {
+        from {
+            transform: translateX(100%);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .app-header {
+        padding: 8px 10px;
+        min-height: 45px;
+    }
+
+    .app-header h2 {
+        font-size: 1em;
+    }
+
+    .entry-modal-box {
+        width: 98vw;
+        height: 95vh;
+        padding: 12px;
+    }
+
+    .editor-toolbar {
+        gap: 4px;
+        padding: 6px;
+    }
+
+    .editor-toolbar .editor-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-height: 32px;
+    }
+
+    .entry-modal-actions button {
+        padding: 10px 12px;
+        min-height: 44px;
+        font-size: 14px;
+    }
+
+    .login-box {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .map-hint {
+        font-size: 11px;
+        padding: 4px 8px;
+        bottom: 60px;
     }
 }
 /* STORYTELLING STYLES */
@@ -297,6 +603,7 @@ html, body {
     padding: 10px;
     background: #fafafa;
     border-radius: 6px;
+    min-height: 200px;
 }
 /* Individual draggable items representing entries */
 .draggable-item {

@@ -25,11 +25,21 @@ document.addEventListener('click', (event) => {
     if (target.closest('#navMap')) {
         document.getElementById('sidebar').classList.remove('active');
         document.querySelector('.map-container').style.display = 'block';
+        document.getElementById('entryDetailPanel').classList.remove('active');
+        updateMobileNavState('navMap');
         return;
     }
     if (target.closest('#navList')) {
         document.getElementById('sidebar').classList.add('active');
         document.querySelector('.map-container').style.display = 'none';
+        updateMobileNavState('navList');
+        return;
+    }
+    if (target.closest('#navProfile')) {
+        // Profile view - for now, just show the sidebar
+        document.getElementById('sidebar').classList.add('active');
+        document.querySelector('.map-container').style.display = 'none';
+        updateMobileNavState('navProfile');
         return;
     }
     // Entry Modal buttons
@@ -137,3 +147,32 @@ document.getElementById('entryImageInput')?.addEventListener('change', (event) =
     };
     reader.readAsDataURL(file);
 });
+
+// Draggable location icon handlers
+const dragLocationContainer = document.getElementById('dragLocationIconContainer');
+
+if (dragLocationContainer) {
+    dragLocationContainer.addEventListener('dragstart', (event) => {
+        isDraggingLocationIcon = true;
+        dragLocationContainer.classList.add('dragging');
+        event.dataTransfer.effectAllowed = 'copy';
+        event.dataTransfer.setData('text/plain', 'location-icon');
+    });
+
+    dragLocationContainer.addEventListener('dragend', (event) => {
+        isDraggingLocationIcon = false;
+        dragLocationContainer.classList.remove('dragging');
+    });
+}
+
+// Mobile navigation state management
+function updateMobileNavState(activeNavId) {
+    const navButtons = document.querySelectorAll('.mobile-nav button');
+    navButtons.forEach((btn) => {
+        btn.classList.remove('active');
+    });
+    const activeButton = document.getElementById(activeNavId);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+}

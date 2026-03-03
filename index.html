@@ -26,8 +26,12 @@
 <!-- Webpage Header -->
     <header class="app-header">
         <h2>Waymark 🖤</h2>
-        <div style="display: flex; align-items: center;">
-            <button id="storiesBtn" type="button" style="margin-right: 15px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">My Stories 🗺️</button>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="dragLocationIconContainer" class="drag-location-container" draggable="true">
+                <span class="drag-location-icon">📍</span>
+                <span class="drag-location-label">Drag to add entry</span>
+            </div>
+            <button id="storiesBtn" type="button" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">My Stories 🗺️</button>
             <div id="userInfo">Not Logged In</div>
         </div>
     </header>
@@ -44,7 +48,7 @@
         <!-- Main map container -->
         <div class="map-container">
             <div id="viewDiv"></div>
-            <div class="map-hint">double click to add entry or select an existing entry</div>
+            <div class="map-hint">Click entries to select them, or drag the location icon from the header to add a new entry</div>
         </div>
         <!-- Detail panel for viewing entries -->
         <aside id="entryDetailPanel" class="entry-detail-panel">
@@ -104,7 +108,7 @@
 </div>
 <!-- Modal for managing stories -->
 <div id="storiesModal" class="overlay" style="display: none; z-index: 105;">
-    <div class="entry-modal-box" style="width: 500px; height: 60vh;">
+    <div class="entry-modal-box" style="width: 95vw; max-width: 600px; height: 90vh;">
         <h3 style="margin-top: 0; color: #a43855;">My Stories</h3>
         <div id="storiesList" style="flex: 1; overflow-y: auto; margin-bottom: 15px;"></div>
         <div class="entry-modal-actions">
@@ -115,20 +119,20 @@
 </div>
 <!-- Modal for editing a specific story -->
 <div id="storyEditModal" class="overlay" style="display: none; z-index: 110;">
-    <div class="entry-modal-box">
+    <div class="entry-modal-box" style="width: 95vw;">
         <!-- Story title input and instructions -->
         <h3 id="storyEditTitle" style="margin-top: 0; color: #a43855;">Story Editor</h3>
-        <input type="text" id="storyTitleInput" placeholder="Give your story a title..." style="width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;" />
+        <input type="text" id="storyTitleInput" placeholder="Give your story a title..." style="width: 95%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; appearance: none;" />
         <p style="font-size: 0.85em; color: #666;">Drag and drop the entries on the right to reorder your journey.</p>
-        <!-- Two columns: available entries and story order -->
-        <div style="display: flex; gap: 20px; flex: 1; overflow: hidden;">
+        <!-- Two columns: available entries and story order (stacks on mobile) -->
+        <div style="display: flex; gap: 20px; flex: 1; overflow: hidden; flex-direction: column;">
             <div style="flex: 1; display: flex; flex-direction: column;">
-                <h4>Available Entries</h4>
+                <h4 style="margin-top: 0; margin-bottom: 8px;">Available Entries</h4>
                 <!-- Drag and drop container for available entries -->
                 <div id="availableEntriesList" class="story-drag-container"></div>
             </div>
             <div style="flex: 1; display: flex; flex-direction: column;">
-                <h4>Story Order</h4>
+                <h4 style="margin-top: 0; margin-bottom: 8px;">Story Order</h4>
                 <!-- Drag and drop container for story order -->
                 <ul id="storyEntriesList" class="story-drag-container" style="list-style: none; margin: 0;"></ul>
             </div>
