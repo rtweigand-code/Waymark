@@ -249,36 +249,41 @@ input, textarea {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 10px;
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 6px;
-    cursor: grab;
-    user-select: none;
-    transition: background-color 0.2s ease;
-}
-
-.drag-location-container:hover {
-    background: rgba(255, 255, 255, 0.35);
-}
-
-.drag-location-container:active {
-    cursor: grabbing;
-}
-
-.drag-location-container.dragging {
-    opacity: 0.7;
-    transform: scale(1.05);
+    padding: 0;
 }
 
 .drag-location-icon {
-    font-size: 1.2em;
+    font-size: 1.4em;
     display: inline-block;
+    cursor: grab;
+    user-select: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.drag-location-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.drag-location-icon:active {
+    cursor: grabbing;
+}
+
+.drag-location-icon.dragging {
+    opacity: 0.7;
+    transform: scale(1.15);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .drag-location-label {
     font-size: 0.85em;
     white-space: nowrap;
+    color: white;
+    pointer-events: none;
 }
 
 /* Hide label on mobile */
@@ -286,8 +291,9 @@ input, textarea {
     .drag-location-label {
         display: none;
     }
-    .drag-location-container {
+    .drag-location-icon {
         padding: 6px 8px;
+        font-size: 1.3em;
     }
 }
 

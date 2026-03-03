@@ -149,19 +149,19 @@ document.getElementById('entryImageInput')?.addEventListener('change', (event) =
 });
 
 // Draggable location icon handlers
-const dragLocationContainer = document.getElementById('dragLocationIconContainer');
+const dragLocationIcon = document.getElementById('dragLocationIcon');
 
-if (dragLocationContainer) {
-    dragLocationContainer.addEventListener('dragstart', (event) => {
+if (dragLocationIcon) {
+    dragLocationIcon.addEventListener('dragstart', (event) => {
         isDraggingLocationIcon = true;
-        dragLocationContainer.classList.add('dragging');
+        dragLocationIcon.classList.add('dragging');
         event.dataTransfer.effectAllowed = 'copy';
         event.dataTransfer.setData('text/plain', 'location-icon');
     });
 
-    dragLocationContainer.addEventListener('dragend', (event) => {
+    dragLocationIcon.addEventListener('dragend', (event) => {
         isDraggingLocationIcon = false;
-        dragLocationContainer.classList.remove('dragging');
+        dragLocationIcon.classList.remove('dragging');
     });
 }
 
