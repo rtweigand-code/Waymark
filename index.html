@@ -132,13 +132,29 @@
         <label for="storyTitleInput">Story Title</label>
         <input type="text" id="storyTitleInput" placeholder="Give your story a title..." style="width: 95%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; appearance: none;" />
         
-        <!-- Compact Color Picker -->
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-            <label for="storyLineColor" style="font-weight: bold; white-space: nowrap;">Line Color:</label>
-            <div id="colorPreview" style="width: 50px; height: 40px; border: 2px solid #666; border-radius: 4px; background-color: #a43855; cursor: pointer;" title="Click to customize color"></div>
-            <input type="text" id="colorHexInput" value="#a43855" maxlength="7" style="width: 80px; padding: 8px; font-family: monospace; text-transform: uppercase; border: 1px solid #ccc; border-radius: 4px;" placeholder="#000000" />
-            <button type="button" id="openColorPickerBtn" style="padding: 8px 12px; background: #a43855; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Customize</button>
-            <input type="color" id="storyLineColor" value="#a43855" style="display: none;" />
+        <!-- Color Picker Section -->
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Line Color:</label>
+            
+            <!-- Quick color presets -->
+            <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                <button type="button" class="quick-color-btn" data-color="#a43855" style="width: 35px; height: 35px; background: #a43855; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#ff1493" style="width: 35px; height: 35px; background: #ff1493; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#ff6b00" style="width: 35px; height: 35px; background: #ff6b00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#ffff00" style="width: 35px; height: 35px; background: #ffff00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#00ff00" style="width: 35px; height: 35px; background: #00ff00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#00bfff" style="width: 35px; height: 35px; background: #00bfff; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#9370db" style="width: 35px; height: 35px; background: #9370db; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+                <button type="button" class="quick-color-btn" data-color="#000000" style="width: 35px; height: 35px; background: #000000; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            </div>
+            
+            <!-- Compact controls with preview, hex input, and customize button -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div id="colorPreview" style="width: 50px; height: 40px; border: 2px solid #666; border-radius: 4px; background-color: #a43855; cursor: pointer;" title="Click to customize color"></div>
+                <input type="text" id="colorHexInput" value="#a43855" maxlength="7" style="width: 80px; padding: 8px; font-family: monospace; text-transform: uppercase; border: 1px solid #ccc; border-radius: 4px;" placeholder="#000000" />
+                <button type="button" id="openColorPickerBtn" style="padding: 8px 12px; background: #a43855; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">More Colors...</button>
+                <input type="color" id="storyLineColor" value="#a43855" style="display: none;" />
+            </div>
         </div>
         
         <p style="font-size: 0.85em; color: #666;">Drag and drop the entries on the right to reorder your journey.</p>

@@ -106,6 +106,52 @@ document.addEventListener('click', (event) => {
     if (target.closest('.remove-from-story-btn')) { removeEntryFromStory(parseInt(target.getAttribute('data-id'), 10)); }
     if (target.closest('.toggle-story-vis-btn')) { toggleStoryVisibility(parseInt(target.getAttribute('data-id'), 10)); }
     if (target.closest('.edit-story-btn')) { openStoryEditModal(parseInt(target.getAttribute('data-id'), 10)); }
+    
+    // Color picker modal handlers
+    if (target.closest('#openColorPickerBtn') || target.id === 'colorPreview') {
+        const currentColor = document.getElementById('colorHexInput')?.value || '#a43855';
+        if (typeof setColorFromHex === 'function') {
+            setColorFromHex(currentColor);
+        }
+        const modal = document.getElementById('colorPickerModal');
+        if (modal) modal.style.display = 'flex';
+        return;
+    }
+    
+    if (target.closest('#applyColorBtn')) {
+        if (typeof hslToHex === 'function' && typeof currentHue !== 'undefined') {
+            const hexColor = hslToHex(currentHue, currentSat, currentLight);
+            if (typeof applyColorToStory === 'function') {
+                applyColorToStory(hexColor);
+            }
+        }
+        const modal = document.getElementById('colorPickerModal');
+        if (modal) modal.style.display = 'none';
+        return;
+    }
+    
+    if (target.closest('#cancelColorBtn')) {
+        const modal = document.getElementById('colorPickerModal');
+        if (modal) modal.style.display = 'none';
+        return;
+    }
+    
+    // Quick color preset buttons (in modal and main editor)
+    const quickColorBtn = target.closest('.quick-color-btn');
+    if (quickColorBtn) {
+        const color = quickColorBtn.getAttribute('data-color');
+        if (color) {
+            // Apply to story editor immediately
+            if (typeof applyColorToStory === 'function') {
+                applyColorToStory(color);
+            }
+            // Update sliders in modal if it's open
+            if (typeof setColorFromHex === 'function') {
+                setColorFromHex(color);
+            }
+        }
+        return;
+    }
 });
 
 // HTML5 Native Drag & Drop Listeners for story entry reordering
@@ -354,46 +400,6 @@ document.addEventListener('input', (event) => {
         if (hex.length === 7 && /^#[0-9A-F]{6}$/i.test(hex)) {
             const preview = document.getElementById('colorPreview');
             if (preview) preview.style.backgroundColor = hex;
-        }
-    }
-});
-
-// Click event handlers
-document.addEventListener('click', (event) => {
-    const target = event.target;
-    
-    // Open color picker modal
-    if (target.closest('#openColorPickerBtn') || target.closest('#colorPreview')) {
-        const currentColor = document.getElementById('colorHexInput').value;
-        setColorFromHex(currentColor);
-        document.getElementById('colorPickerModal').style.display = 'flex';
-        return;
-    }
-    
-    // Apply color from modal
-    if (target.closest('#applyColorBtn')) {
-        const hexColor = hslToHex(currentHue, currentSat, currentLight);
-        applyColorToStory(hexColor);
-        document.getElementById('colorPickerModal').style.display = 'none';
-        return;
-    }
-    
-    // Cancel color picker
-    if (target.closest('#cancelColorBtn')) {
-        document.getElementById('colorPickerModal').style.display = 'none';
-        return;
-    }
-    
-    // Quick color preset buttons
-    const btn = target.closest('.quick-color-btn');
-    if (btn) {
-        const color = btn.getAttribute('data-color');
-        if (color) {
-            setColorFromHex(color);
-            
-            // Visual feedback
-            document.querySelectorAll('.quick-color-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
         }
     }
 });
