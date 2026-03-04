@@ -83,7 +83,7 @@ function updateSidebarList() {
         
         const entryDate = entry.createdAt ? formatDate(entry.createdAt) : '';
         entryDiv.innerHTML = `
-            <h4 style="margin: 0 0 5px 0; color: #a43855;">${entry.title}</h4>
+            <h4 class="entry-title-link" data-entry-id="${entry.id}" style="margin: 0 0 5px 0; color: #a43855; cursor: pointer;">${entry.title}</h4>
             ${entryDate ? `<small style="color: #888; display: block; margin-bottom: 5px;">${entryDate}</small>` : ''}
             ${imageHtml}
             <p style="margin: 0; font-size: 0.9em;">${truncateText(entry.text, 120)}</p>

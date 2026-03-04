@@ -128,7 +128,7 @@ function saveStory() {
 // Updates the map graphics for a story, including drawing the connecting line and calculating mileage
 function updateStoryMapGraphics(story) {
     story.graphicsLayer.removeAll();
-    const orderedPoints = [];
+    const orderedMapPoints = [];
     const storyEntries = [];
     story.totalMiles = 0;
     //
@@ -138,9 +138,7 @@ function updateStoryMapGraphics(story) {
             const pointKey = buildPointKey(entry.lat, entry.lon);
             const pointRecord = pointStore.get(pointKey);
             if (pointRecord && pointRecord.mapPoint) {
-                orderedPoints.push([pointRecord.mapPoint.longitude, pointRecord.mapPoint.latitude]);
-            } else {
-                orderedPoints.push([entry.lon, entry.lat]);
+                orderedMapPoints.push(pointRecord.mapPoint);
             }
             storyEntries.push(entry);
         }
@@ -150,8 +148,10 @@ function updateStoryMapGraphics(story) {
     let totalMiles = 0;
     const segmentMiles = [];
     // Only attempt to draw the line and calculate mileage if we have at least 2 points, and if the necessary ArcGIS modules are loaded
-    if (orderedPoints.length >= 2 && PolylineCtor && geometryEngineModule) {
-        const polyline = new PolylineCtor({ paths: [orderedPoints], spatialReference: { wkid: 4326 } });
+    if (orderedMapPoints.length >= 2 && PolylineCtor && geometryEngineModule) {
+        const spatialReference = orderedMapPoints[0].spatialReference || { wkid: 4326 };
+        const path = orderedMapPoints.map((point) => [point.x, point.y]);
+        const polyline = new PolylineCtor({ paths: [path], spatialReference });
         totalMiles = geometryEngineModule.geodesicLength(polyline, "miles");
         story.totalMiles = Number.isFinite(totalMiles) ? totalMiles : 0;
 
@@ -162,13 +162,21 @@ function updateStoryMapGraphics(story) {
         story.graphicsLayer.add(lineGraphic);
 
         // Get segment distances
-        for (let i = 0; i < orderedPoints.length; i++) {
+        for (let i = 0; i < orderedMapPoints.length; i++) {
             let distFromPrev = 0, distToNext = 0;
             if (i > 0) {
-                distFromPrev = geometryEngineModule.geodesicLength(new PolylineCtor({ paths: [[orderedPoints[i-1], orderedPoints[i]]], spatialReference: { wkid: 4326 } }), "miles");
+                const prevToCurrent = new PolylineCtor({
+                    paths: [[[orderedMapPoints[i - 1].x, orderedMapPoints[i - 1].y], [orderedMapPoints[i].x, orderedMapPoints[i].y]]],
+                    spatialReference
+                });
+                distFromPrev = geometryEngineModule.geodesicLength(prevToCurrent, "miles");
             }
-            if (i < orderedPoints.length - 1) {
-                distToNext = geometryEngineModule.geodesicLength(new PolylineCtor({ paths: [[orderedPoints[i], orderedPoints[i+1]]], spatialReference: { wkid: 4326 } }), "miles");
+            if (i < orderedMapPoints.length - 1) {
+                const currentToNext = new PolylineCtor({
+                    paths: [[[orderedMapPoints[i].x, orderedMapPoints[i].y], [orderedMapPoints[i + 1].x, orderedMapPoints[i + 1].y]]],
+                    spatialReference
+                });
+                distToNext = geometryEngineModule.geodesicLength(currentToNext, "miles");
             }
             segmentMiles.push({
                 distFromPrev: Number.isFinite(distFromPrev) ? distFromPrev : 0,
@@ -181,8 +189,37 @@ function updateStoryMapGraphics(story) {
         segmentMiles.push({ distFromPrev: 0, distToNext: 0 });
     }
 
-    // Attach math to entries and re-render points into the proper layers!
-    storyEntries.forEach((entry, idx) => { entry.storyDistanceInfo = segmentMiles[idx]; });
+    // Clear stale distance data from entries that are not in any story.
+    const allStoryEntryIds = new Set();
+    stories.forEach((storyItem) => {
+        storyItem.entryIds.forEach((entryId) => allStoryEntryIds.add(entryId));
+    });
+
+    journalEntries.forEach((entry) => {
+        if (!allStoryEntryIds.has(entry.id)) {
+            delete entry.storyDistanceInfo;
+        }
+    });
+    pointStore.forEach((pointRecord) => {
+        pointRecord.entries.forEach((entry) => {
+            if (!allStoryEntryIds.has(entry.id)) {
+                delete entry.storyDistanceInfo;
+            }
+        });
+    });
+
+    // Attach mileage to both journal and point-store entries so popups/detail panels can always read it.
+    storyEntries.forEach((entry, idx) => {
+        const mileageInfo = segmentMiles[idx] || { distFromPrev: 0, distToNext: 0 };
+        entry.storyDistanceInfo = mileageInfo;
+
+        pointStore.forEach((pointRecord) => {
+            const pointEntry = pointRecord.entries.find((item) => item.id === entry.id);
+            if (pointEntry) {
+                pointEntry.storyDistanceInfo = mileageInfo;
+            }
+        });
+    });
     // Now that we've updated the story's graphics layer with the line and calculated the mileage info for each entry, 
     // we need to loop through all points on the map and update their graphics to reflect any changes in story association
     // or popup content (like showing mileage info in the popup if they're part of a story)

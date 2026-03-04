@@ -60,6 +60,25 @@ document.addEventListener('click', (event) => {
     const editorBtn = target.closest('.editor-btn');
     if (editorBtn) {
         applyEditorCommand(editorBtn.getAttribute('data-cmd'));
+        return;
+    }
+
+    const sidebarTitle = target.closest('.entry-title-link');
+    if (sidebarTitle) {
+        const entryId = parseInt(sidebarTitle.getAttribute('data-entry-id'), 10);
+        if (!Number.isFinite(entryId)) {
+            return;
+        }
+        const pointRecord = findPointRecordByEntryId(entryId);
+        if (!pointRecord) {
+            return;
+        }
+        const entry = findEntryById(pointRecord, entryId);
+        if (!entry) {
+            return;
+        }
+        openEntryModal('edit', pointRecord, entry);
+        return;
     }
     
     // Image removal button

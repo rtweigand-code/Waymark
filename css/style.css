@@ -655,3 +655,30 @@ p, small, span, div, button, input, textarea {
 .entry-editor {
     font-family: 'Lora', serif !important;
 }
+
+/* Clickable text treatment (app + map popups) */
+.entry-title-link,
+.popup-entry-option,
+.esri-popup__button,
+.esri-popup__action,
+.esri-popup__action-text {
+    text-shadow:
+        -0.5px -0.5px 0 #5b3a29,
+         0.5px -0.5px 0 #5b3a29,
+        -0.5px  0.5px 0 #5b3a29,
+         0.5px  0.5px 0 #5b3a29;
+}
+
+.entry-title-link:hover,
+.popup-entry-option:hover,
+.esri-popup__button:hover,
+.esri-popup__action:hover,
+.esri-popup__action-text:hover,
+.entry-title-link:focus-visible,
+.popup-entry-option:focus-visible,
+.esri-popup__button:focus-visible,
+.esri-popup__action:focus-visible,
+.esri-popup__action-text:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

@@ -104,6 +104,16 @@ function findEntryById(pointRecord, entryId) {
     return pointRecord.entries.find((entry) => entry.id === entryId) || getLatestEntry(pointRecord);
 }
 
+function findPointRecordByEntryId(entryId) {
+    let matchedPointRecord = null;
+    pointStore.forEach((pointRecord) => {
+        if (!matchedPointRecord && pointRecord.entries.some((entry) => entry.id === entryId)) {
+            matchedPointRecord = pointRecord;
+        }
+    });
+    return matchedPointRecord;
+}
+
 // Applies formatting commands to the entry editor when the user clicks on the formatting buttons in the modal
 function applyEditorCommand(command) {
     const editor = document.getElementById('entryEditor');
