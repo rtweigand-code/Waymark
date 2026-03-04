@@ -4,7 +4,7 @@ A web-based diary application that lets users record personal journal entries di
 
 ## Overview
 
-Waymark combines traditional journaling with geospatial storytelling. Instead of writing in a linear diary, users mark locations on a map where significant moments occurred and attach diary entries to those points. The app supports creating "stories"—journeys that connect multiple entries with visualized paths and distance calculations.
+Waymark combines traditional journaling with geospatial storytelling. Instead of writing in a linear diary, users mark locations on a map where significant moments occurred and attach diary entries to those points. The app supports creating "stories"—journeys that connect multiple entries with visualized paths and distance calculations. This is also especially helpful for field notes.
 
 ## Features
 
@@ -106,31 +106,13 @@ The application is organized into focused modules that handle specific responsib
   - File API for image uploads
   - LocalStorage (potential for data persistence)
 
-## Browser Compatibility
-
-Works on modern browsers that support:
-- ES6 JavaScript
-- CSS Grid and Flexbox
-- ArcGIS API 4.28
-
 Tested on:
-- Chrome/Chromium (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+- Opera on Linux Fedora 43
+- Opera on Google Pixel 8
 
 ## Future Enhancements
 
-Potential improvements for future versions:
-- User authentication and cloud-based data persistence
-- Export entries to PDF or markdown formats
-- Social sharing of stories
-- Collaborative journeys with multiple users
-- Offline mode support
-- Custom map themes and layers
-- Advanced story analytics (distance, duration, speed)
-- Entry templates for different types of journeys
-- Integration with external services (weather, photos from date)
+
 
 ## Author
 
