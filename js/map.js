@@ -297,5 +297,6 @@ function initMap() {
                 }
                 longPressIndicator = null;
             }
+        }
     });
 }
