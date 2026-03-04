@@ -1,6 +1,60 @@
-// Map Initialization & Map Event Handlers
+/**
+ * ============================================================================
+ * MAP.JS - ArcGIS Map Initialization & Interaction Handlers
+ * ============================================================================
+ * 
+ * This file initializes and configures the ArcGIS JavaScript API map, which is
+ * the core geographic component of Waymark. It handles:
+ * 
+ * - Loading ArcGIS modules via AMD require()
+ * - Creating the map and view instances
+ * - Adding widgets (Search, Locate, Basemap Gallery)
+ * - Setting up click and long-press event handlers
+ * - Managing popup interactions
+ * 
+ * INTERACTION PATTERNS:
+ * 
+ * - SINGLE CLICK: Select existing entry (opens popup)
+ * - LONG PRESS (800ms): Create new entry at location
+ * - POPUP ACTIONS: Read, Edit, Add to same point
+ * 
+ * The map uses a long-press gesture for entry creation to avoid conflicts
+ * with pan/zoom gestures, making it more mobile-friendly.
+ */
 
+// ============================================================================
+// MAP INITIALIZATION
+// ============================================================================
+
+/**
+ * Initializes the ArcGIS map and sets up all event handlers
+ * 
+ * This is the main initialization function called when the user enters the app.
+ * It performs several critical setup tasks:
+ * 
+ * MODULE LOADING:
+ * Uses AMD-style require() to load ArcGIS modules asynchronously.
+ * Modules are stored in global variables for use throughout the app.
+ * 
+ * MAP CREATION:
+ * - Creates Map instance with basemap
+ * - Creates MapView with center and zoom
+ * - Adds graphics layer for entry markers
+ * 
+ * WIDGETS:
+ * - Search: Location search in header
+ * - Locate: GPS location button
+ * - BasemapGallery: Style switcher
+ * 
+ * EVENT HANDLERS:
+ * - Popup action handlers (read, edit, add)
+ * - Click handler for selecting entries
+ * - Long-press handler for creating entries
+ * 
+ * The function is called only once per session (tracked by mapInitialized flag).
+ */
 function initMap() {
+    // LOAD ARCGIS MODULES: Use AMD require() pattern
     require([
         'esri/Map',
         'esri/views/MapView',
@@ -14,61 +68,84 @@ function initMap() {
         'esri/geometry/Polyline',
         'esri/geometry/geometryEngine'
     ], (Map, MapView, esriConfig, Search, Locate, BasemapGallery, Expand, Graphic, GraphicsLayer, Polyline, geometryEngine) => {
+        // SET API KEY: Required for ArcGIS services access
         esriConfig.apiKey = 'AAPTxy8BH1VEsoebNVZXo8HurP99AuF0u6hFXE5XsMHKuzBSGN5LvVSYilawxafx85hn9PCGXebaJHWlitVBT5zeCUaAyEvqj1BxcDK_zJC-tVX6YCERGHXEpZz6YEPcefm_vmXsNbePUUZ7JAXpHdXjsnh5x7OFNgUY22Xi2rwI6cYzTClvMoxyiN9hd4ig364gzmVxs5mLuQQYqSwxcO8eUnY8D8k0W9Tj3o-WFWbJGlMs42rjT9Cgf1AsZxwet7SYAT1_FDERp6GX';
 
-        GraphicCtor = Graphic;
-        GraphicsLayerCtor = GraphicsLayer; // Save this to make new layers for stories
-        PolylineCtor = Polyline;           // Save for drawing lines
-        geometryEngineModule = geometryEngine; // Save for calculating miles
+        // STORE CONSTRUCTORS GLOBALLY: Save for use in other modules
+        GraphicCtor = Graphic;                    // For creating map markers
+        GraphicsLayerCtor = GraphicsLayer;         // For story layers
+        PolylineCtor = Polyline;                  // For drawing story paths
+        geometryEngineModule = geometryEngine;     // For distance calculations
 
+        // CREATE MAIN GRAPHICS LAYER: Holds entry point markers
         appGraphicsLayer = new GraphicsLayer();
 
+        // CREATE MAP INSTANCE: Configure basemap and add graphics layer
         const map = new Map({
-            basemap: 'arcgis-midcentury',
-            layers: [appGraphicsLayer]
+            basemap: 'arcgis-midcentury',    // Stylish vintage basemap
+            layers: [appGraphicsLayer]        // Add main graphics layer
         });
 
-        mapInstance = map; // Save globally for story layer additions
-        // Initialize the MapView with a default center and zoom level, and set the container to the 'viewDiv' element
+        mapInstance = map; // Save globally for adding story layers later
+        
+        // CREATE MAPVIEW: Configure viewport and interaction settings
         const view = new MapView({
             map,
-            center: [-106.644568, 35.126358],
-            zoom: 9,
-            container: 'viewDiv'
+            center: [-106.644568, 35.126358],  // Default: New Mexico
+            zoom: 9,                            // Comfortable regional view
+            container: 'viewDiv'                // DOM element ID
         });
-        // Disable the default popup behavior since we'll be managing popups manually based on our custom logic
+        
+        // DISABLE DEFAULT POPUP: We manage popups manually for custom behavior
         view.popup.autoOpenEnabled = false;
-        //
+        
+        // SAVE VIEW GLOBALLY: Needed for programmatic map operations
         appView = view;
-        // Add the Search widget to the top-right corner of the view, allowing users to search for locations on the map
+        // ================================================================
+        // WIDGET CONFIGURATION
+        // ================================================================
+        
+        // SEARCH WIDGET: Add location search to sidebar header
         new Search({ view, container: 'searchContainer' });
-        // Add the Locate widget to the bottom-right corner, allowing users to quickly navigate to their current location
+        
+        // LOCATE WIDGET: GPS location button for mobile/desktop
         const locateBtn = new Locate({ view });
+        
+        // BASEMAP GALLERY: Let users switch map styles
         const basemapGallery = new BasemapGallery({ view });
-        // Create a container for the Locate and BasemapGallery widgets, and add it to the view's UI in the bottom-right corner
+        
+        // CREATE WIDGET CONTAINER: Custom DOM element for bottom-right controls
         const widgetRow = document.createElement('div');
         widgetRow.className = 'map-widget-row';
-        // We create separate containers for the locate button and the basemap gallery to ensure they are styled correctly and don't interfere with each other  
+        
+        // Separate containers prevent widget styling conflicts
         const locateContainer = document.createElement('div');
         const basemapContainer = document.createElement('div');
         widgetRow.appendChild(locateContainer);
         widgetRow.appendChild(basemapContainer);
-        // Set the containers for the widgets to the respective divs we just created
+        
+        // Attach widgets to their containers
         locateBtn.container = locateContainer;
-        // Wrap the BasemapGallery in an Expand widget so it doesn't take up too much space, and set it to auto-collapse after a selection is made
+        
+        // Wrap BasemapGallery in Expand widget to save space
         new Expand({
             view,
             content: basemapGallery,
             container: basemapContainer,
-            autoCollapse: true
+            autoCollapse: true  // Close after selection
         });
-        // Finally, add the entire widget row to the view's UI in the bottom-right corner
+        
+        // Add widget row to map view
         view.ui.add(widgetRow, { position: 'bottom-right', index: 0 });
-        // When the view is ready, attempt to locate the user
-        // if that fails (like if they deny permission), we fall back to using the browser's geolocation API 
-        // as a last resort to center the map on their location
+        // ================================================================
+        // INITIAL USER LOCATION
+        // ================================================================
+        
+        // When map is ready, attempt to center on user's location
+        // Try GPS first, fall back to browser geolocation if denied
         view.when(() => {
             locateBtn.locate().catch(() => {
+                // Fallback to browser geolocation if GPS permission denied
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition((position) => {
                         view.goTo({
@@ -79,9 +156,25 @@ function initMap() {
                 }
             });
         });
-        // Set up a listener for actions triggered from the popups on the map. 
-        // This allows us to handle user interactions with the popup buttons, such as reading the full entry, editing it,
-        //  or adding a new entry at the same point.
+        // ================================================================
+        // POPUP ACTION HANDLERS
+        // ================================================================
+        
+        /**
+         * Handles user clicks on action buttons within map popups
+         * 
+         * Actions available:
+         * - 'read-full-entry': Opens detail panel with complete entry content
+         * - 'edit-entry': Opens entry modal pre-filled for editing
+         * - 'add-same-point': Creates new entry at same geographic location
+         * - 'close-popup': Closes the popup
+         * 
+         * The handler:
+         * 1. Gets the selected graphic from popup
+         * 2. Finds the point record using pointKey attribute
+         * 3. Finds the specific entry using selectedEntryId
+         * 4. Calls appropriate function based on action ID
+         */
         view.popup.on('trigger-action', (popupEvent) => {
             if (popupEvent.action.id === 'close-popup') {
                 view.popup.close();
@@ -124,30 +217,48 @@ function initMap() {
                 openEntryModal('new', pointRecord, null);
             }
         });
-        // Set up a listener for single-click events on the view to select existing entries
-        // This is more mobile-friendly than double-click
+        // ================================================================
+        // CLICK HANDLER: Select existing entries
+        // ================================================================
+        
+        /**
+         * Single-click handler for selecting existing entry markers
+         * 
+         * Using single click instead of double-click for better mobile experience.
+         * The handler:
+         * 1. Performs hit test to check if click landed on a graphic
+         * 2. Filters for graphics with pointKey attribute (entry markers)
+         * 3. Opens popup (selector if multiple entries, direct if single)
+         * 
+         * If user clicks on empty map area, nothing happens (long-press creates new entry).
+         */
         view.on('click', async (event) => {
             const hitResponse = await view.hitTest(event);
+            
+            // Find if click landed on an entry marker graphic
             const graphicResult = hitResponse.results.find((result) => {
                 const graphic = result && result.graphic ? result.graphic : null;
                 if (!graphic || !graphic.attributes) {
                     return false;
                 }
+                // Only consider graphics with pointKey (entry markers, not other graphics)
                 return !!graphic.attributes.pointKey && pointStore.has(graphic.attributes.pointKey);
             });
             
-            // If the user clicked on an existing graphic that has a pointKey attribute, show the popup for that point
+            // If the user clicked on an existing entry marker
             if (graphicResult) {
                 const pointKey = graphicResult.graphic.attributes.pointKey;
                 if (!pointStore.has(pointKey)) {
                     return;
                 }
-                // If the point has multiple entries, show the entry selector popup
-                // if it has only one entry, show the entry popup
                 const pointRecord = pointStore.get(pointKey);
+                
+                // MULTIPLE ENTRIES: Show selector popup
                 if (pointRecord.entries.length > 1) {
                     openEntrySelectorPopup(pointRecord, event.mapPoint);
-                } else {
+                } 
+                // SINGLE ENTRY: Show entry popup directly
+                else {
                     const latestEntry = getLatestEntry(pointRecord);
                     if (latestEntry) {
                         openEntryPopup(pointRecord, latestEntry, event.mapPoint);
@@ -156,8 +267,24 @@ function initMap() {
             }
         });
         
-        // Long press (click and hold) handler for creating new entries
-        // Long press (click and hold) handler for creating new entries
+        // ================================================================
+        // LONG-PRESS HANDLER: Create new entries
+        // ================================================================
+        
+        /**
+         * Long-press (click and hold) handler for creating new diary entries
+         * 
+         * Long-press pattern:
+         * - Press duration: 800ms
+         * - Movement threshold: 10 pixels
+         * - Visual feedback: Growing circular indicator
+         * 
+         * This avoids conflicts with pan/zoom gestures and provides clear
+         * visual feedback on mobile devices.
+         * 
+         * The handler uses standard DOM events (mousedown/touchstart) instead
+         * of ArcGIS pointer events for better mobile compatibility.
+         */
         let longPressTimer = null;
         let longPressStartPoint = null;
         let longPressIndicator = null;

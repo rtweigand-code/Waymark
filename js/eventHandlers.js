@@ -1,6 +1,53 @@
-// Global Event Handlers - Clicks, Drag & Drop
+/**
+ * ============================================================================
+ * EVENTHANDLERS.JS - Global Event Listeners & User Interactions
+ * ============================================================================
+ * 
+ * This file sets up all DOM event listeners for user interactions throughout
+ * the application. Uses event delegation for efficiency and dynamic content.
+ * 
+ * EVENT CATEGORIES:
+ * 
+ * 1. LOGIN & NAVIGATION:
+ *    - Login button, guest mode button
+ *    - Mobile navigation (Map/Entries/Profile)
+ * 
+ * 2. ENTRY MANAGEMENT:
+ *    - Entry modal buttons (save, cancel)
+ *    - Editor toolbar (formatting commands)
+ *    - Sidebar entry clicks
+ *    - Image upload and removal
+ * 
+ * 3. STORY MANAGEMENT:
+ *    - Stories modal (open, close, create)
+ *    - Story editor (add/remove entries, save, cancel)
+ *    - Drag & drop entry reordering
+ *    - Story visibility toggle
+ * 
+ * 4. COLOR PICKER:
+ *    - Custom HSL sliders
+ *    - Hex input fields
+ *    - Quick color preset buttons
+ * 
+ * 5. DETAIL PANEL:
+ *    - Close button
+ * 
+ * EVENT DELEGATION STRATEGY:
+ * Most handlers use event delegation on document.addEventListener('click')
+ * checking event.target.closest() to match specific elements. This works
+ * for both static and dynamically created elements.
+ */
 
-// Main click delegation for login, navigation, and entry interactions
+// ============================================================================
+// LOGIN, NAVIGATION & ENTRY MANAGEMENT EVENTS
+// ============================================================================
+
+/**
+ * Main click delegation handler for login, navigation, and entry interactions
+ * 
+ * Uses event.target.closest() to match button selectors, allowing the
+ * handler to work with dynamically created elements and nested DOM structures.
+ */
 document.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) {
@@ -81,7 +128,11 @@ document.addEventListener('click', (event) => {
         return;
     }
     
-    // Image removal button
+    // ========================================================================
+    // IMAGE UPLOAD & REMOVAL
+    // ========================================================================
+    
+    // Remove currently uploaded image from entry
     if (target.closest('#removeImageBtn')) {
         currentEntryImage = null;
         document.getElementById('imagePreview').innerHTML = '';
@@ -91,7 +142,21 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Story-related click listeners
+// ============================================================================
+// STORY MANAGEMENT EVENTS
+// ============================================================================
+
+/**
+ * Story-related click handlers
+ * 
+ * Handles:
+ * - Opening/closing story modals
+ * - Creating new stories
+ * - Editing existing stories
+ * - Adding/removing entries from stories
+ * - Toggling story visibility
+ * - Color picker interactions
+ */
 document.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
@@ -136,7 +201,9 @@ document.addEventListener('click', (event) => {
         return;
     }
     
-    // Quick color preset buttons (in modal and main editor)
+    // ========================================================================
+    // COLOR PICKER: Quick preset buttons
+    // ========================================================================
     const quickColorBtn = target.closest('.quick-color-btn');
     if (quickColorBtn) {
         const color = quickColorBtn.getAttribute('data-color');
@@ -154,7 +221,19 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// HTML5 Native Drag & Drop Listeners for story entry reordering
+// ============================================================================
+// HTML5 DRAG & DROP: Story Entry Reordering
+// ============================================================================
+
+/**
+ * Drag and drop handlers for reordering entries within a story
+ * 
+ * Allows users to drag entries in the "Selected Entries" list to
+ * change the story sequence. The order determines the path direction
+ * and distance calculations.
+ * 
+ * Uses HTML5 drag & drop API with dragstart, dragover, and dragend events.
+ */
 document.addEventListener('dragstart', e => {
     if (e.target.closest('#storyEntriesList .draggable-item')) {
         draggedEntryItem = e.target.closest('.draggable-item');
@@ -176,7 +255,25 @@ document.addEventListener('dragover', e => {
 });
 
 document.addEventListener('dragend', e => { draggedEntryItem = null; });
-// Image upload handler
+
+// ============================================================================
+// IMAGE UPLOAD HANDLER
+// ============================================================================
+
+/**
+ * Handles image file selection and preview for diary entries
+ * 
+ * Validation:
+ * - File type: JPG or PNG only
+ * - File size: Max 5MB
+ * 
+ * Process:
+ * 1. Validate file type and size
+ * 2. Read file as base64 data URL using FileReader
+ * 3. Store in currentEntryImage variable
+ * 4. Display preview thumbnail
+ * 5. Show remove button
+ */
 document.getElementById('entryImageInput')?.addEventListener('change', (event) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -213,7 +310,16 @@ document.getElementById('entryImageInput')?.addEventListener('change', (event) =
     reader.readAsDataURL(file);
 });
 
-// Handle Enter key in contenteditable editor to ensure proper line breaks on mobile
+// ============================================================================
+// KEYBOARD EVENT HANDLERS
+// ============================================================================
+
+/**
+ * Handle Enter key in contenteditable editor
+ * 
+ * Ensures proper line breaks on mobile keyboards by allowing
+ * browser's natural Enter key handling (no preventDefault).
+ */
 document.addEventListener('keydown', (event) => {
     const editor = document.getElementById('entryEditor');
     if (!editor || event.target !== editor) {
@@ -234,7 +340,11 @@ document.addEventListener('submit', (event) => {
     return false;
 });
 
-// Mobile navigation state management
+/**
+ * Updates mobile navigation button active states
+ * 
+ * Highlights the currently active view button (Map/Entries/Profile)
+ */
 function updateMobileNavState(activeNavId) {
     const navButtons = document.querySelectorAll('.mobile-nav button');
     navButtons.forEach((btn) => {
@@ -246,7 +356,29 @@ function updateMobileNavState(activeNavId) {
     }
 }
 
-// Custom Color Picker Logic
+// ============================================================================
+// CUSTOM COLOR PICKER LOGIC
+// ============================================================================
+
+/**
+ * Custom HSL color picker for story line customization
+ * 
+ * Provides three sliders for:
+ * - Hue (0-360): Color selection
+ * - Saturation (0-100): Color intensity
+ * - Lightness (0-100): Brightness
+ * 
+ * Features:
+ * - Live preview with gradient backgrounds on sliders
+ * - Hex input/output for precise color entry
+ * - Conversion between HSL and hex formats
+ * - Syncs with quick color presets
+ * 
+ * The picker updates both the modal preview and the main story editor
+ * color field in real-time.
+ */
+
+// Current HSL values (default to burgundy #a43855)
 let currentHue = 341;
 let currentSat = 67;
 let currentLight = 40;

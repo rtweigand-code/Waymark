@@ -1,4 +1,41 @@
-/*Mobile First Styles*/
+/**
+ * ========================================
+ * WAYMARK DIARY MAP - MAIN STYLESHEET
+ * ========================================
+ * 
+ * Mobile-first responsive design for the Waymark diary mapping application.
+ * Uses Kuromi burgundy (#a43855) as the primary brand color.
+ * 
+ * TYPOGRAPHY:
+ * - Alice (serif) - Used for all headings and titles
+ * - Lora (serif) - Used for body text, inputs, and general content
+ * 
+ * LAYOUT STRATEGY:
+ * - Mobile: Single column, stacked layout with bottom navigation
+ * - Desktop (768px+): Multi-column layout with persistent sidebar
+ * 
+ * KEY COMPONENTS:
+ * - Login overlay and authentication UI
+ * - Entry editor modal with rich text editing
+ * - Map container with ArcGIS integration
+ * - Sidebar for entry/story lists
+ * - Detail panel for viewing individual entries
+ * - Story drag-and-drop interface
+ * - Custom color picker with HSL sliders
+ * 
+ * RESPONSIVE BREAKPOINTS:
+ * - Mobile: < 768px (default)
+ * - Small mobile: < 480px (extra compact)
+ * - Desktop: >= 768px
+ */
+
+/* ========================================
+   BASE STYLES - Mobile First
+   ======================================== */
+
+/* Root HTML and body setup
+ * Disable text selection globally (except inputs/textareas)
+ * to prevent accidental selection during drag operations */
 html, body {
     padding: 0; margin: 0;
     height: 100%; width: 100%;
@@ -9,13 +46,17 @@ html, body {
     user-select: none;
 }
 
-/* Prevent text selection on buttons but allow in inputs */
+/* Allow text selection in input fields and textareas */
 input, textarea {
     -webkit-user-select: text;
     user-select: text;
 }
 
-/* Login Overlay */
+/* ========================================
+   LOGIN SCREEN
+   ======================================== */
+
+/* Full-screen login overlay with burgundy tint */
 .overlay {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
@@ -23,7 +64,8 @@ input, textarea {
     display: flex; justify-content: center; align-items: center;
     z-index: 100;
 }
-/* Login Box */
+
+/* White card container for login form */
 .login-box {
     background: white; padding: 30px;
     border-radius: 10px; text-align: center;
@@ -37,7 +79,8 @@ input, textarea {
 .login-box p {
     font-family: 'Lora', serif;
 }
-/* Login Box Elements */
+
+/* Text input fields in login form */
 .login-box input {
     width: 90%; padding: 12px; margin: 10px 0;
     border: 1px solid #ccc; border-radius: 5px;
@@ -45,7 +88,8 @@ input, textarea {
     -webkit-appearance: none;
     appearance: none;
 }
-/* Login Button */
+
+/* Primary login button styling */
 .login-box button {
     width: 100%; padding: 12px;
     background-color: #333; color: white;
@@ -56,7 +100,13 @@ input, textarea {
     min-height: 48px;
     font-weight: bold;
 }
-/* Modal for Entry Editor */
+
+/* ========================================
+   ENTRY EDITOR MODAL
+   ======================================== */
+
+/* Modal container for creating/editing entries
+ * Responsive sizing: 95vw on mobile, max 1000px on desktop */
 .entry-modal-box {
     background: white;
     padding: 16px;
@@ -78,7 +128,8 @@ input, textarea {
     font-size: 1.2em;
     font-family: 'Alice', serif;
 }
-/* Entry Modal Elements */
+
+/* Coordinate display below entry title */
 .entry-coords {
     font-size: 0.85em;
     color: #666;
@@ -96,7 +147,8 @@ input, textarea {
     appearance: none;
     box-sizing: border-box;
 }
-/* Image upload section */
+
+/* Image upload container with file input and preview */
 .image-upload-section {
     margin: 12px 0;
     padding: 12px;
@@ -111,6 +163,8 @@ input, textarea {
     margin-bottom: 8px;
     font-size: 0.95em;
 }
+
+/* File input for image selection */
 .image-upload-section input[type="file"] {
     display: block;
     width: 100%;
@@ -120,6 +174,8 @@ input, textarea {
     border-radius: 4px;
     cursor: pointer;
 }
+
+/* Container and preview image styling */
 .image-preview {
     text-align: center;
     min-height: 20px;
@@ -133,6 +189,8 @@ input, textarea {
     margin-left: auto;
     margin-right: auto;
 }
+
+/* Delete button for removing selected image */
 .remove-image-btn {
     background-color: #d9534f;
     color: white;
@@ -145,6 +203,11 @@ input, textarea {
 .remove-image-btn:hover {
     background-color: #c9302c;
 }
+
+/* ========================================
+   ENTRY EDITOR TOOLBAR
+   ======================================== */
+
 /* Simple toolbar for text formatting (can be expanded later) */
 .editor-toolbar {
     display: flex;
@@ -156,7 +219,8 @@ input, textarea {
     border: 1px solid #ddd;
     border-radius: 6px;
 }
-/* Basic styling for toolbar buttons */
+
+/* Basic styling for toolbar buttons (bold, italic, underline, etc.) */
 .editor-toolbar .editor-btn {
     width: auto;
     padding: 8px 12px;
@@ -170,7 +234,13 @@ input, textarea {
     -webkit-appearance: none;
     appearance: none;
 }
-/*Entry Editor */
+
+/* ========================================
+   ENTRY EDITOR
+   ======================================== */
+
+/* Rich text editor (contenteditable div) for entry content
+ * Flex layout allows it to grow and fill available space */
 .entry-editor {
     flex: 1;
     border: 1px solid #ccc;
@@ -191,13 +261,19 @@ input, textarea {
     border-color: #a43855;
     box-shadow: 0 0 4px rgba(164, 56, 85, 0.2);
 }
-/* Modal Action Buttons */
+
+/* ========================================
+   MODAL ACTION BUTTONS
+   ======================================== */
+
+/* Flex container for Save/Cancel buttons */
 .entry-modal-actions {
     display: flex;
     gap: 10px;
     margin-top: 12px;
 }
-/* Save and Cancel buttons */
+
+/* Save and Cancel buttons in entry modal */
 .entry-modal-actions button {
     width: auto;
     flex: 1;
@@ -211,7 +287,8 @@ input, textarea {
     -webkit-appearance: none;
     appearance: none;
 }
-/* Save button in burgundy, Cancel in neutral gray */
+
+/* Save button in burgundy (#a43855), with darker shade on press */
 .save-btn {
     background-color: #a43855;
     color: white;
@@ -229,16 +306,25 @@ input, textarea {
 .cancel-btn:active {
     background-color: #888;
 }
+
+/* Cancel button in neutral gray, with darker shade on press */
+
+/* ========================================
+   OVERALL APP LAYOUT
+   ======================================== */
+
 /* Guest Button on Login Screen */
 #guestBtn {
     margin-top: 14px;
 }
 
-/* App Layout */
+/* Root flex container for entire application
+ * Stacks header above app body with map and sidebar */
 .app-container {
     display: flex; flex-direction: column; height: 100%;
 }
-/* Header with app title and mobile menu button */
+
+/* Burgundy header bar with app title and action buttons */
 .app-header {
     background-color: #a43855; color: white;
     padding: 10px 12px; display: flex;
@@ -263,6 +349,12 @@ input, textarea {
     flex-wrap: nowrap;
 }
 
+/* ========================================
+   APP BODY & MAIN CONTENT AREA
+   ======================================== */
+
+/* Main flex container combining map and sidebar
+ * Mobile: vertical stack (column), Desktop: side-by-side (row) */
 .app-body {
     display: flex; 
     flex: 1; 
@@ -271,7 +363,13 @@ input, textarea {
     flex-direction: column;
 }
 
-/* On mobile, sidebar is hidden by default and stacked above map */
+/* ========================================
+   SIDEBAR (ENTRY & STORY LISTING)
+   ======================================== */
+
+/* Sidebar container for entry and story lists
+ * Mobile: Hidden by default, shown above map in toggle
+ * Desktop: Always visible as left sidebar */
 .sidebar {
     display: none; 
     width: 100%;
@@ -291,26 +389,35 @@ input, textarea {
     font-family: 'Alice', serif;
 }
 
+/* Search container in sidebar */
 .sidebar #searchContainer {
     margin-bottom: 12px;
 }
 
-/* Toggle class for mobile view */
+/* Show sidebar when toggled active on mobile */
 .sidebar.active { display: block; }
 
+/* ========================================
+   MAP CONTAINER & WIDGETS
+   ======================================== */
+
+/* Container for the ArcGIS map and all map-related widgets */
 .map-container {
     flex: 1; 
     height: 100%; 
     width: 100%;
     position: relative;
 }
-/* Map div should fill the container */
+
+/* ArcGIS map view div - fills entire map container */
 #viewDiv { 
     height: 100%; 
     width: 100%;
     position: relative;
 }
-/* Hint box on the map */
+
+/* Floating hint box displayed on the map
+ * Shows instructions for user interactions (e.g., "Long press to add entry") */
 .map-hint {
     position: absolute;
     left: 12px;
@@ -324,7 +431,12 @@ input, textarea {
     z-index: 4;
 }
 
-/* Long press indicator */
+/* ========================================
+   LONG-PRESS INDICATOR
+   ======================================== */
+
+/* Visual feedback for long-press detection on map
+ * Animated circle that grows over 600ms during long press */
 .long-press-indicator {
     position: absolute;
     width: 60px;
@@ -350,7 +462,14 @@ input, textarea {
         opacity: 1;
     }
 }
-/* Entry Detail Panel */
+
+/* ========================================
+   ENTRY DETAIL PANEL
+   ======================================== */
+
+/* Slide-out panel for viewing and editing individual entries
+ * Mobile: Full screen overlay from right side
+ * Desktop: Fixed right sidebar */
 .entry-detail-panel {
     display: none;
     position: absolute;
@@ -368,7 +487,12 @@ input, textarea {
 .entry-detail-panel.active {
     display: block;
 }
-/* Entry Detail Elements */
+
+/* ========================================
+   ENTRY DETAIL HEADER & CONTENT
+   ======================================== */
+
+/* Header bar within detail panel showing entry title and edit button */
 .entry-detail-header {
     display: flex;
     justify-content: space-between;
@@ -384,7 +508,7 @@ input, textarea {
     font-family: 'Alice', serif;
 }
 
-/* Edit button in entry detail header */
+/* Edit button opening the entry editor modal */
 .entry-detail-header button {
     width: auto;
     padding: 8px 14px;
@@ -401,26 +525,33 @@ input, textarea {
     background: #8a2f46;
 }
 
-/* Entry metadata styling */
+/* Entry metadata (date and location) */
 .entry-detail-meta {
     color: #666;
     font-size: 0.85em;
     margin-bottom: 12px;
     font-family: 'Lora', serif;
 }
-/* Entry content styling */
+
+/* Entry content body text display */
 .entry-detail-content {
     line-height: 1.6;
     color: #333;
     font-family: 'Lora', serif;
 }
-/* Row layout for map hint and entry detail options */
+
+/* ========================================
+   POPUP OPTIONS AND WIDGET ROWS
+   ======================================== */
+
+/* Flex container for arranging widgets horizontally */
 .map-widget-row {
     display: flex;
     align-items: center;
     gap: 8px;
 }
-/* Option buttons in the entry detail panel */
+
+/* Interactive option buttons (delete, add to story, etc.) */
 .popup-entry-option {
     margin: 4px 0;
     background: none;
@@ -432,7 +563,12 @@ input, textarea {
     font-size: 14px;
 }
 
-/* Mobile Bottom Navigation */
+/* ========================================
+   MOBILE BOTTOM NAVIGATION
+   ======================================== */
+
+/* Bottom nav bar for mobile (hidden on desktop)
+ * Provides quick access to sidebar toggle and other actions */
 .mobile-nav {
     display: flex; 
     justify-content: space-around;
@@ -441,7 +577,8 @@ input, textarea {
     padding: 8px 0;
     height: auto;
 }
-/* Buttons in the mobile nav */
+
+/* Bottom nav buttons with icon and label support */
 .mobile-nav button {
     background: none; 
     border: none; 
@@ -459,6 +596,7 @@ input, textarea {
     transition: background-color 0.2s ease;
 }
 
+/* Active state (pressed button) visual feedback */
 .mobile-nav button:active {
     background-color: rgba(164, 56, 85, 0.1);
 }
@@ -468,7 +606,12 @@ input, textarea {
     border-top: 3px solid #a43855;
 }
 
-/* Desktop Styles */
+/* ========================================
+   RESPONSIVE BREAKPOINTS (Desktop)
+   ======================================== */
+
+/* Desktop layout (768px and above)
+ * Switches from stacked mobile to side-by-side layout */
 @media (min-width: 768px) {
     .app-body { 
         flex-direction: row; 
@@ -528,7 +671,12 @@ input, textarea {
     }
 }
 
-/* Mobile-specific tweaks for smaller screens */
+/* ========================================
+   RESPONSIVE BREAKPOINTS (Mobile)
+   ======================================== */
+
+/* Tablet/medium device layout (767px and below)
+ * Adjusts detail panel to slide in from right side */
 @media (max-width: 767px) {
     .entry-detail-panel.active {
         position: absolute;
@@ -551,7 +699,12 @@ input, textarea {
     }
 }
 
-/* Extra small screens */
+/* ========================================
+   RESPONSIVE BREAKPOINTS (Extra Small)
+   ======================================== */
+
+/* Extra small device layout (480px and below)
+ * Compact everything for phone screens */
 @media (max-width: 480px) {
     .app-header {
         padding: 8px 10px;
@@ -642,8 +795,13 @@ input, textarea {
         overflow-y: auto;
     }
 }
-/* STORYTELLING STYLES */
-/* Container for the story editing interface */
+
+/* ========================================
+   STORYTELLING & JOURNEY INTERFACE
+   ======================================== */
+
+/* Container for the story editing interface
+ * Displays draggable list of entry points in a journey */
 .story-drag-container {
     flex: 1;
     overflow-y: auto;
@@ -654,7 +812,9 @@ input, textarea {
     min-height: 0;
     max-height: 200px;
 }
-/* Individual draggable items representing entries */
+
+/* Draggable entry point in story editor
+ * Can be reordered via drag-and-drop to change journey sequence */
 .draggable-item {
     padding: 10px;
     margin-bottom: 8px;
@@ -667,12 +827,14 @@ input, textarea {
     align-items: center;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-/* Change cursor and background when dragging */
+
+/* Visual feedback during drag operation */
 .draggable-item:active {
     cursor: grabbing;
     background: #f0f0f0;
 }
-/* Styling for the story list in the sidebar */
+
+/* Story list item in sidebar (summary of each journey) */
 .story-list-item {
     display: flex;
     justify-content: space-between;
@@ -681,7 +843,7 @@ input, textarea {
     border-bottom: 1px solid #eee;
 }
 
-/* Small buttons for story actions */
+/* Compact action buttons for editing/deleting stories */
 .story-btn-small {
     background: none;
     border: 1px solid #a43855;
@@ -691,17 +853,24 @@ input, textarea {
     cursor: pointer;
     font-size: 12px;
 }
-/* Hover effect for story action buttons */
+
+/* Visual feedback when hovering over story action button */
 .story-btn-small:hover {
     background: #a43855;
     color: white;
 }
 
-/* Typography - Alice for headers, Lora for body text */
+/* ========================================
+   TYPOGRAPHY & TEXT STYLING
+   ======================================== */
+
+/* Global typography settings
+ * Alice serif for headings, Lora serif for body content */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Alice', serif !important;
 }
 
+/* Body text and form elements all use Lora serif font */
 p, small, span, div, button, input, textarea {
     font-family: 'Lora', serif;
 }
@@ -710,7 +879,13 @@ p, small, span, div, button, input, textarea {
     font-family: 'Lora', serif !important;
 }
 
-/* Clickable text treatment (app + map popups) */
+/* ========================================
+   CLICKABLE TEXT INTERACTIONS
+   ======================================== */
+
+/* Hover and focus states for clickable text elements
+ * Applied to entry titles, popup buttons, and ArcGIS elements
+ * Uses text-shadow outline technique for better visibility */
 .entry-title-link:hover,
 .popup-entry-option:hover,
 .esri-popup__button:hover,
@@ -730,7 +905,12 @@ p, small, span, div, button, input, textarea {
     text-underline-offset: 2px;
 }
 
-/* Custom Color Picker Sliders */
+/* ========================================
+   COLOR PICKER UI
+   ======================================== */
+
+/* Custom slider thumb styling for HSL color input
+ * Webkit browsers (Chrome, Safari) */
 #hueSlider::-webkit-slider-thumb,
 #satSlider::-webkit-slider-thumb,
 #lightSlider::-webkit-slider-thumb {
@@ -745,6 +925,7 @@ p, small, span, div, button, input, textarea {
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+/* Firefox slider thumb styling */
 #hueSlider::-moz-range-thumb,
 #satSlider::-moz-range-thumb,
 #lightSlider::-moz-range-thumb {
@@ -757,18 +938,26 @@ p, small, span, div, button, input, textarea {
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+/* ========================================
+   QUICK COLOR BUTTON STYLES
+   ======================================== */
+
+/* Quick preset color buttons with interactive feedback */
 .quick-color-btn {
     transition: transform 0.1s, border-color 0.1s;
 }
 
+/* Hover feedback - slightly enlarge button */
 .quick-color-btn:hover {
     transform: scale(1.1);
 }
 
+/* Press feedback - slightly shrink button */
 .quick-color-btn:active {
     transform: scale(0.95);
 }
 
+/* Selected/active color indicator - bold black border */
 .quick-color-btn.selected {
     border-color: #000 !important;
     border-width: 3px !important;

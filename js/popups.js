@@ -1,5 +1,39 @@
-// Popup and Point Graphic Management
+/**
+ * ============================================================================
+ * POPUPS.JS - Map Popup and Graphic Management
+ * ============================================================================
+ * 
+ * This file manages:
+ * - Building popup templates for entry display on the map
+ * - Opening popups for single and multiple entries at a point
+ * - Creating and updating map graphics (point markers)
+ * - Handling story-related visual enhancements
+ * 
+ * Popups are ArcGIS's way of displaying information when clicking map features.
+ * Each entry gets a custom popup with actions for reading, editing, and creating entries.
+ */
 
+// ============================================================================
+// STORY LOOKUP UTILITIES
+// ============================================================================
+
+/**
+ * Finds the story that contains a given entry
+ * 
+ * Used to determine if an entry is part of a journey, which affects:
+ * - Popup display (adds story info banner)
+ * - Map marker appearance (black for story entries, burgundy for standalone)
+ * - Distance calculations shown in popups
+ * 
+ * @param {Object} entry - Entry object with id property
+ * @returns {Object|null} Story object if entry is in a story, null otherwise
+ * 
+ * @example
+ * const story = findStoryForEntry(myEntry);
+ * if (story) {
+ *   console.log(`This entry is part of: ${story.title}`);
+ * }
+ */
 function findStoryForEntry(entry) {
     if (!entry) {
         return null;
@@ -7,12 +41,43 @@ function findStoryForEntry(entry) {
     return stories.find((story) => story.entryIds.includes(entry.id)) || null;
 }
 
-// Builds a popup template for a given entry, including story mileage info if available
+// ============================================================================
+// POPUP TEMPLATE CONSTRUCTION
+// ============================================================================
+
+/**
+ * Builds a complete popup template configuration for displaying an entry
+ * 
+ * Popup templates define:
+ * - Title (entry title)
+ * - Content (preview text, story info if applicable)
+ * - Actions (buttons for reading, editing, adding entries)
+ * 
+ * Story integration:
+ * If the entry is part of a story, adds a colored banner showing:
+ * - Story title
+ * - Distance from previous entry in story
+ * - Distance to next entry in story
+ * 
+ * Text preview:
+ * - Shows first 180 characters of entry
+ * - Adds note if text is truncated
+ * - Prompts user to "Read full entry" for complete text
+ * 
+ * @param {Object} entry - Entry object with title, textPlain, storyDistanceInfo
+ * @param {Object|null} [pointStory=null] - Pre-fetched story object (optional optimization)
+ * @returns {Object} ArcGIS popup template configuration
+ * 
+ * @example
+ * const template = buildEntryPopupTemplate(entry);
+ * graphic.popupTemplate = template;
+ */
+function buildEntryPopupTemplate(entry, pointStory = null) {
 function buildEntryPopupTemplate(entry, pointStory = null) {
     const preview = truncateText(entry.textPlain, 180);
     const resolvedStory = pointStory || findStoryForEntry(entry);
 
-    //Inject story mileage data if it exists!
+    // Build story information banner if this entry is part of a journey
     let storyHtml = '';
     if (resolvedStory && entry.storyDistanceInfo) {
         storyHtml = `
@@ -23,7 +88,8 @@ function buildEntryPopupTemplate(entry, pointStory = null) {
             </div>
         `;
     }
-    // Build the popup content with the entry preview and story info if applicable
+    
+    // Construct the full popup template with title, content, and action buttons
     return {
         title: entry.title,
         content: `
@@ -42,28 +108,83 @@ function buildEntryPopupTemplate(entry, pointStory = null) {
     };
 }
 
-// Opens a popup for a specific entry at a point, optionally at a specific location (like from a click event)
+// ============================================================================
+// POPUP DISPLAY FUNCTIONS
+// ============================================================================
+
+/**
+ * Opens a popup for a specific entry at a point on the map
+ * 
+ * This function:
+ * 1. Updates the point's graphic attributes to reference the selected entry
+ * 2. Builds a fresh popup template with current entry data
+ * 3. Opens the ArcGIS popup at the specified location
+ * 
+ * The popup location parameter allows flexibility:
+ * - Pass event.mapPoint to open at click location
+ * - Pass null to open at the point's actual coordinates
+ * 
+ * @param {Object} pointRecord - Point record containing the graphic and entries
+ * @param {Object} entry - Specific entry to display in the popup
+ * @param {Object} location - ArcGIS Point geometry for popup placement
+ * 
+ * @example
+ * // Open popup at click location:
+ * openEntryPopup(pointRecord, entry, event.mapPoint);
+ * 
+ * // Open popup at point's natural location:
+ * openEntryPopup(pointRecord, entry, pointRecord.mapPoint);
+ */
 function openEntryPopup(pointRecord, entry, location) {
     if (!pointRecord.graphic) {
         return;
     }
+    
     const pointStory = findStoryForEntry(entry);
-    // Update the graphic's attributes and popup template to reflect the selected entry
+    
+    // Update graphic's attributes to reflect which entry is being shown
     pointRecord.graphic.attributes = {
         pointKey: pointRecord.pointKey,
         selectedEntryId: entry.id,
         title: entry.title
     };
+    
+    // Build fresh popup template with current story data
     pointRecord.graphic.popupTemplate = buildEntryPopupTemplate(entry, pointStory);
-    // Open the popup at the specified location or default to the point's map location
+    
+    // Open the popup at specified location or default to point location
     appView.popup.open({
         features: [pointRecord.graphic],
         location: location || pointRecord.mapPoint
     });
 }
 
-// If a point has multiple entries, this function opens a popup that allows the user to select which entry they want to view
+/**
+ * Opens a multi-entry selector popup when a point has multiple diary entries
+ * 
+ * When users create multiple entries at the same coordinates, clicking the
+ * point should show all entries in a carousel-style popup. This function:
+ * 
+ * 1. Creates a temporary Graphic for each entry at the same location
+ * 2. Each graphic has the same marker symbol but different attributes/popup
+ * 3. Opens popup with all graphics as "features" array
+ * 4. User can page through entries using popup's feature navigation
+ * 
+ * The graphics created here are temporary - they're not added to the map layer,
+ * just used as popup feature data. The actual persistent graphic remains in pointRecord.
+ * 
+ * @param {Object} pointRecord - Point record with entries array and mapPoint
+ * @param {Object} location - ArcGIS Point geometry for popup placement
+ * 
+ * @example
+ * if (pointRecord.entries.length > 1) {
+ *   openEntrySelectorPopup(pointRecord, event.mapPoint);
+ * } else {
+ *   openEntryPopup(pointRecord, pointRecord.entries[0], event.mapPoint);
+ * }
+ */
 function openEntrySelectorPopup(pointRecord, location) {
+    // Create a feature Graphic for each entry, all at the same point
     const features = pointRecord.entries.map((entry) => new GraphicCtor({
         geometry: pointRecord.mapPoint,
         symbol: pointRecord.graphic ? pointRecord.graphic.symbol : {
@@ -79,32 +200,76 @@ function openEntrySelectorPopup(pointRecord, location) {
         popupTemplate: buildEntryPopupTemplate(entry, findStoryForEntry(entry))
     }));
 
+    // Open popup with all features - user can navigate between them
     appView.popup.open({
         features,
         location: location || pointRecord.mapPoint
     });
 }
 
-// Updates the graphic for a point record, reflecting the latest entry and story status
+// ============================================================================
+// MAP GRAPHIC MANAGEMENT
+// ============================================================================
+
+/**
+ * Updates or creates the map graphic (point marker) for a point record
+ * 
+ * This is a critical function that handles the visual representation of entries
+ * on the map. It manages:
+ * 
+ * - **Graphic creation**: If point has no graphic, create a new one
+ * - **Graphic updates**: If graphic exists, update its appearance and popup
+ * - **Story integration**: Move graphics between layers based on story membership
+ * - **Color coding**: Black markers for story entries, burgundy for standalone
+ * - **Popup templates**: Update with latest entry data and story info
+ * 
+ * Story layer management:
+ * - Entries not in a story → appGraphicsLayer (burgundy markers)
+ * - Entries in a story → story.graphicsLayer (black markers)
+ * - When story membership changes, graphic is moved between layers
+ * 
+ * The function is called:
+ * - After saving/editing an entry
+ * - After updating story composition
+ * - When entry content changes
+ * 
+ * @param {Object} pointRecord - Point record containing entries, graphic, and mapPoint
+ * 
+ * @example
+ * // After saving an entry:
+ * saveEntry();
+ * updatePointGraphic(pointRecord);  // Refresh the map marker
+ * 
+ * // After updating a story:
+ * updateStoryMapGraphics(story);
+ * story.affectedPoints.forEach(pointKey => {
+ *   updatePointGraphic(pointStore.get(pointKey));
+ * });
+ */
 function updatePointGraphic(pointRecord) {
     const latestEntry = getLatestEntry(pointRecord);
     if (!latestEntry || !pointRecord) { return; }
 
-    // Check if this point is locked into a story
+    // Determine if this point is part of a story
     let pointStory = null;
     stories.forEach(s => {
         s.entryIds.forEach(eid => {
             const je = journalEntries.find(j => j.id === eid);
-            if (je && buildPointKey(je.lat, je.lon) === pointRecord.pointKey) { pointStory = s; }
+            if (je && buildPointKey(je.lat, je.lon) === pointRecord.pointKey) { 
+                pointStory = s; 
+            }
         });
     });
-    // Build the popup template with story info if this point is part of a story
+    
+    // Build popup template with story info if applicable
     const popupTemplate = buildEntryPopupTemplate(latestEntry, pointStory);
+    
+    // Determine target layer and color based on story membership
     const targetLayer = pointStory ? pointStory.graphicsLayer : appGraphicsLayer;
-    const targetMarkerColor = pointStory ? [0, 0, 0] : [164, 56, 85];
+    const targetMarkerColor = pointStory ? [0, 0, 0] : [164, 56, 85];  // Black for stories, burgundy for standalone
 
+    // CREATE NEW GRAPHIC
     if (!pointRecord.graphic) {
-        // Create a new graphic
         pointRecord.graphic = new GraphicCtor({
             geometry: pointRecord.mapPoint,
             symbol: {
@@ -112,16 +277,21 @@ function updatePointGraphic(pointRecord) {
                 color: targetMarkerColor,
                 outline: { color: [255, 255, 255], width: 2 }
             },
-            attributes: { pointKey: pointRecord.pointKey, selectedEntryId: latestEntry.id, title: latestEntry.title },
+            attributes: { 
+                pointKey: pointRecord.pointKey, 
+                selectedEntryId: latestEntry.id, 
+                title: latestEntry.title 
+            },
             popupTemplate
         });
-        // Add the new graphic to the appropriate layer
         targetLayer.add(pointRecord.graphic);
-    } else {
-        // Check if we need to move the graphic to a different layer
+    } 
+    // UPDATE EXISTING GRAPHIC
+    else {
+        // Check if graphic needs to move to a different layer (story membership changed)
         const currentLayer = pointRecord.graphic.layer;
         if (currentLayer && currentLayer !== targetLayer) {
-            // Remove from old layer, add to new layer
+            // Remove from old layer
             if (pointRecord.graphic in currentLayer.graphics) {
                 try {
                     currentLayer.remove(pointRecord.graphic);
@@ -129,19 +299,25 @@ function updatePointGraphic(pointRecord) {
                     // Layer removal might fail if graphic was already removed
                 }
             }
+            // Add to new layer
             try {
                 targetLayer.add(pointRecord.graphic);
             } catch (e) {
                 // Layer add might fail due to graphic already in layer
             }
         }
-        // Update the existing graphic's symbol, attributes, and popup template
+        
+        // Update the graphic's visual properties and popup
         pointRecord.graphic.symbol = {
             type: 'simple-marker',
             color: targetMarkerColor,
             outline: { color: [255, 255, 255], width: 2 }
         };
-        pointRecord.graphic.attributes = { pointKey: pointRecord.pointKey, selectedEntryId: latestEntry.id, title: latestEntry.title };
+        pointRecord.graphic.attributes = { 
+            pointKey: pointRecord.pointKey, 
+            selectedEntryId: latestEntry.id, 
+            title: latestEntry.title 
+        };
         pointRecord.graphic.popupTemplate = popupTemplate;
     }
 }
