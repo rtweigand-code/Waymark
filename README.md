@@ -110,10 +110,6 @@ Tested on:
 - Opera on Linux Fedora 43
 - Opera on Google Pixel 8
 
-## Future Enhancements
-
-
-
 ## Author
 
 Created by Brooke Fandrich
