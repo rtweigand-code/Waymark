@@ -164,26 +164,36 @@ function initMap() {
         const LONG_PRESS_DURATION = 800; // milliseconds
         const MOVE_THRESHOLD = 5; // pixels - very small threshold to detect panning
         
-        // Listen for press events on the view container
-        // Use capture phase to ensure we get the events before the map does
-        view.container.addEventListener('pointerdown', handlePressStart, true);
-        view.container.addEventListener('pointermove', handlePressMove, true);
-        view.container.addEventListener('pointerup', handlePressEnd, true);
-        view.container.addEventListener('pointercancel', handlePressEnd, true);
+        // Listen for press events on the view container - use bubble phase (default)
+        // Attach to both the container and a parent to catch all events
+        const attachPressListeners = (target) => {
+            target.addEventListener('pointerdown', handlePressStart);
+            target.addEventListener('pointermove', handlePressMove);
+            target.addEventListener('pointerup', handlePressEnd);
+            target.addEventListener('pointercancel', handlePressEnd);
+            
+            target.addEventListener('touchstart', handlePressStart);
+            target.addEventListener('touchmove', handlePressMove);
+            target.addEventListener('touchend', handlePressEnd);
+            target.addEventListener('touchcancel', handlePressEnd);
+            
+            target.addEventListener('mousedown', handlePressStart);
+            target.addEventListener('mousemove', handlePressMove);
+            target.addEventListener('mouseup', handlePressEnd);
+        };
         
-        // Fallback for touch and mouse events
-        view.container.addEventListener('touchstart', handlePressStart, true);
-        view.container.addEventListener('touchmove', handlePressMove, true);
-        view.container.addEventListener('touchend', handlePressEnd, true);
-        view.container.addEventListener('touchcancel', handlePressEnd, true);
-        
-        view.container.addEventListener('mousedown', handlePressStart, true);
-        view.container.addEventListener('mousemove', handlePressMove, true);
-        view.container.addEventListener('mouseup', handlePressEnd, true);
+        attachPressListeners(view.container);
+        // Also attach to document as fallback for events that escape
+        attachPressListeners(document);
         
         function handlePressStart(event) {
             // Ignore if we're already in a long press
             if (longPressTimer || isLongPressActive) {
+                return;
+            }
+            
+            // Only process events on the map container or its children
+            if (event.target && !view.container.contains(event.target) && event.target !== view.container) {
                 return;
             }
             
@@ -209,6 +219,11 @@ function initMap() {
             const x = clientX - rect.left;
             const y = clientY - rect.top;
             
+            // Validate coordinates are within the map bounds
+            if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+                return;
+            }
+            
             // Get the map point
             const mapPoint = view.toMap({ x, y });
             if (!mapPoint) return;
@@ -218,8 +233,11 @@ function initMap() {
             // Create visual indicator
             longPressIndicator = document.createElement('div');
             longPressIndicator.className = 'long-press-indicator';
+            longPressIndicator.style.position = 'absolute';
             longPressIndicator.style.left = x + 'px';
             longPressIndicator.style.top = y + 'px';
+            longPressIndicator.style.zIndex = '15';
+            longPressIndicator.style.pointerEvents = 'none';
             view.container.appendChild(longPressIndicator);
             
             longPressTimer = setTimeout(() => {

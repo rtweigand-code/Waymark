@@ -16,7 +16,9 @@
     <div class="login-box">
         <h2>Welcome to Waymark!</h2>
         <p>Log in to save your memories.</p>
+        <label for="emailInput">Email</label>
         <input type="email" id="emailInput" placeholder="Email" />
+        <label for="passwordInput">Password</label>
         <input type="password" id="passwordInput" placeholder="Password" />
         <button id="loginBtn" type="button">Log In / Sign Up</button>
         <!-- guest button allows for user testing before login system backend is set up-->
@@ -72,6 +74,7 @@
         <h3 id="entryModalTitle">New Diary Entry 📓</h3>
         <p id="entryCoords" class="entry-coords"></p>
 
+        <label for="entryTitle">Entry Title</label>
         <input type="text" id="entryTitle" placeholder="Entry Title" />
         
         <!-- Date picker section -->
@@ -126,6 +129,7 @@
     <div class="entry-modal-box" style="width: 95vw;">
         <!-- Story title input and instructions -->
         <h3 id="storyEditTitle" style="margin-top: 0; color: #a43855;">Story Editor</h3>
+        <label for="storyTitleInput">Story Title</label>
         <input type="text" id="storyTitleInput" placeholder="Give your story a title..." style="width: 95%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; appearance: none;" />
         <p style="font-size: 0.85em; color: #666;">Drag and drop the entries on the right to reorder your journey.</p>
         <!-- Two columns: available entries and story order (stacks on mobile) -->
