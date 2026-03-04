@@ -35,20 +35,47 @@ function openStoriesModal() {
         stories.forEach(story => {
             const div = document.createElement('div');
             div.className = 'story-list-item';
-            const lineColor = story.lineColor || '#a43855';
-            div.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                    <div style="width: 20px; height: 20px; background-color: ${lineColor}; border-radius: 3px; border: 1px solid #ccc;"></div>
-                    <div>
-                        <strong>${escapeHtml(story.title)}</strong><br>
-                        <small style="color: #666;">${story.totalMiles.toFixed(2)} miles • ${story.entryIds.length} stops</small>
-                    </div>
-                </div>
-                <div>
-                    <button class="story-btn-small toggle-story-vis-btn" data-id="${story.id}">${story.visible ? '👁️ Hide' : '👁️‍🗨️ Show'}</button>
-                    <button class="story-btn-small edit-story-btn" data-id="${story.id}">Edit</button>
-                </div>
+            
+            // Ensure lineColor is a valid hex color
+            let lineColor = story.lineColor || '#a43855';
+            lineColor = lineColor.trim();
+            if (!lineColor.startsWith('#')) {
+                lineColor = '#' + lineColor;
+            }
+            
+            // Create the color swatch element
+            const colorSwatch = document.createElement('div');
+            colorSwatch.style.width = '20px';
+            colorSwatch.style.height = '20px';
+            colorSwatch.style.backgroundColor = lineColor;  // Set directly via DOM
+            colorSwatch.style.borderRadius = '3px';
+            colorSwatch.style.border = '1px solid #ccc';
+            
+            // Create the content container
+            const contentDiv = document.createElement('div');
+            contentDiv.style.display = 'flex';
+            contentDiv.style.alignItems = 'center';
+            contentDiv.style.gap = '10px';
+            contentDiv.style.flex = '1';
+            
+            contentDiv.appendChild(colorSwatch);
+            
+            const textDiv = document.createElement('div');
+            textDiv.innerHTML = `
+                <strong>${escapeHtml(story.title)}</strong><br>
+                <small style="color: #666;">${story.totalMiles.toFixed(2)} miles • ${story.entryIds.length} stops</small>
             `;
+            contentDiv.appendChild(textDiv);
+            
+            // Create the buttons container
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.innerHTML = `
+                <button class="story-btn-small toggle-story-vis-btn" data-id="${story.id}">${story.visible ? '👁️ Hide' : '👁️‍🗨️ Show'}</button>
+                <button class="story-btn-small edit-story-btn" data-id="${story.id}">Edit</button>
+            `;
+            
+            div.appendChild(contentDiv);
+            div.appendChild(buttonsDiv);
             listContainer.appendChild(div);
         });
     }
@@ -60,23 +87,37 @@ function openStoryEditModal(storyId) {
     currentEditingStoryId = storyId;
     currentStoryEditEntries = [];
     const titleInput = document.getElementById('storyTitleInput');
-    const colorInput = document.getElementById('storyLineColor');
 
-    if (!titleInput || !colorInput) {
+    if (!titleInput) {
         console.error('Story edit modal elements not found');
         return;
     }
 
+    let colorValue = '#a43855';
     if (storyId) {
         const story = stories.find(s => s.id === storyId);
         if (story) {
             titleInput.value = story.title;
-            colorInput.value = story.lineColor || '#a43855';
+            colorValue = story.lineColor || '#a43855';
             currentStoryEditEntries = [...story.entryIds];
         }
     } else {
         titleInput.value = '';
-        colorInput.value = '#a43855';
+        colorValue = '#a43855';
+    }
+    
+    // Initialize color picker (use global function if available)
+    if (typeof setColorFromHex === 'function') {
+        setColorFromHex(colorValue);
+    } else {
+        // Fallback for basic initialization
+        const colorInput = document.getElementById('storyLineColor');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorHexDisplay = document.getElementById('colorHexDisplay');
+        
+        if (colorInput) colorInput.value = colorValue;
+        if (colorPreview) colorPreview.style.backgroundColor = colorValue;
+        if (colorHexDisplay) colorHexDisplay.textContent = colorValue.toUpperCase();
     }
 
     renderStoryEditLists();

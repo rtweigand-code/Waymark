@@ -199,3 +199,149 @@ function updateMobileNavState(activeNavId) {
         activeButton.classList.add('active');
     }
 }
+
+// Custom Color Picker Logic
+let currentHue = 341;
+let currentSat = 67;
+let currentLight = 40;
+
+// Helper functions for color conversion
+function hslToHex(h, s, l) {
+    s = s / 100;
+    l = l / 100;
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+    
+    if (h >= 0 && h < 60) {
+        r = c; g = x; b = 0;
+    } else if (h >= 60 && h < 120) {
+        r = x; g = c; b = 0;
+    } else if (h >= 120 && h < 180) {
+        r = 0; g = c; b = x;
+    } else if (h >= 180 && h < 240) {
+        r = 0; g = x; b = c;
+    } else if (h >= 240 && h < 300) {
+        r = x; g = 0; b = c;
+    } else if (h >= 300 && h < 360) {
+        r = c; g = 0; b = x;
+    }
+    
+    r = Math.round((r + m) * 255);
+    g = Math.round((g + m) * 255);
+    b = Math.round((b + m) * 255);
+    
+    const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return '#' + toHex(r) + toHex(g) + toHex(b);
+}
+
+function hexToHSL(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return { h: 0, s: 0, l: 0 };
+    
+    let r = parseInt(result[1], 16) / 255;
+    let g = parseInt(result[2], 16) / 255;
+    let b = parseInt(result[3], 16) / 255;
+    
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        
+        switch (max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+            case g: h = ((b - r) / d + 2) / 6; break;
+            case b: h = ((r - g) / d + 4) / 6; break;
+        }
+    }
+    
+    return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+    };
+}
+
+function updateColorFromHSL() {
+    const hexColor = hslToHex(currentHue, currentSat, currentLight);
+    const preview = document.getElementById('colorPreview');
+    const hexDisplay = document.getElementById('colorHexDisplay');
+    const nativeInput = document.getElementById('storyLineColor');
+    
+    if (preview) preview.style.backgroundColor = hexColor;
+    if (hexDisplay) hexDisplay.textContent = hexColor.toUpperCase();
+    if (nativeInput) nativeInput.value = hexColor;
+    
+    // Update saturation gradient
+    const satSlider = document.getElementById('satSlider');
+    if (satSlider) {
+        const hueColor = hslToHex(currentHue, 100, 50);
+        satSlider.style.background = `linear-gradient(to right, #808080, ${hueColor})`;
+    }
+    
+    // Update lightness gradient
+    const lightSlider = document.getElementById('lightSlider');
+    if (lightSlider) {
+        const darkColor = hslToHex(currentHue, currentSat, 0);
+        const midColor = hslToHex(currentHue, currentSat, 50);
+        const lightColor = hslToHex(currentHue, currentSat, 100);
+        lightSlider.style.background = `linear-gradient(to right, ${darkColor}, ${midColor}, ${lightColor})`;
+    }
+}
+
+function setColorFromHex(hex) {
+    const hsl = hexToHSL(hex);
+    currentHue = hsl.h;
+    currentSat = hsl.s;
+    currentLight = hsl.l;
+    
+    const hueSlider = document.getElementById('hueSlider');
+    const satSlider = document.getElementById('satSlider');
+    const lightSlider = document.getElementById('lightSlider');
+    
+    if (hueSlider) hueSlider.value = currentHue;
+    if (satSlider) satSlider.value = currentSat;
+    if (lightSlider) lightSlider.value = currentLight;
+    
+    updateColorFromHSL();
+}
+
+// Color picker event listeners
+document.addEventListener('input', (event) => {
+    if (event.target.id === 'hueSlider') {
+        currentHue = parseInt(event.target.value, 10);
+        updateColorFromHSL();
+    } else if (event.target.id === 'satSlider') {
+        currentSat = parseInt(event.target.value, 10);
+        updateColorFromHSL();
+    } else if (event.target.id === 'lightSlider') {
+        currentLight = parseInt(event.target.value, 10);
+        updateColorFromHSL();
+    } else if (event.target.id === 'storyLineColor') {
+        // Native color picker changed
+        setColorFromHex(event.target.value);
+    }
+});
+
+// Quick color preset buttons
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.quick-color-btn');
+    if (btn) {
+        const color = btn.getAttribute('data-color');
+        if (color) {
+            setColorFromHex(color);
+            
+            // Visual feedback
+            document.querySelectorAll('.quick-color-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+    }
+});

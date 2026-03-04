@@ -729,3 +729,47 @@ p, small, span, div, button, input, textarea {
     text-decoration: underline;
     text-underline-offset: 2px;
 }
+
+/* Custom Color Picker Sliders */
+#hueSlider::-webkit-slider-thumb,
+#satSlider::-webkit-slider-thumb,
+#lightSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #333;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+#hueSlider::-moz-range-thumb,
+#satSlider::-moz-range-thumb,
+#lightSlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #333;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.quick-color-btn {
+    transition: transform 0.1s, border-color 0.1s;
+}
+
+.quick-color-btn:hover {
+    transform: scale(1.1);
+}
+
+.quick-color-btn:active {
+    transform: scale(0.95);
+}
+
+.quick-color-btn.selected {
+    border-color: #000 !important;
+    border-width: 3px !important;
+}
