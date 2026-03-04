@@ -132,49 +132,13 @@
         <label for="storyTitleInput">Story Title</label>
         <input type="text" id="storyTitleInput" placeholder="Give your story a title..." style="width: 95%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; appearance: none;" />
         
-        <!-- Color Picker Section -->
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Line Color:</label>
-            
-            <!-- Quick color presets -->
-            <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
-                <button type="button" class="quick-color-btn" data-color="#a43855" style="width: 35px; height: 35px; background: #a43855; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#ff1493" style="width: 35px; height: 35px; background: #ff1493; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#ff6b00" style="width: 35px; height: 35px; background: #ff6b00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#ffd700" style="width: 35px; height: 35px; background: #ffd700; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#00ff00" style="width: 35px; height: 35px; background: #00ff00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#00bfff" style="width: 35px; height: 35px; background: #00bfff; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#9370db" style="width: 35px; height: 35px; background: #9370db; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-                <button type="button" class="quick-color-btn" data-color="#000000" style="width: 35px; height: 35px; background: #000000; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
-            </div>
-            
-            <!-- Hue slider with gradient -->
-            <div style="margin-bottom: 10px;">
-                <label style="font-size: 0.85em; color: #666;">Hue</label>
-                <input type="range" id="hueSlider" min="0" max="360" value="341" 
-                    style="width: 100%; height: 30px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%); border-radius: 5px; outline: none;">
-            </div>
-            
-            <!-- Saturation slider with gradient -->
-            <div style="margin-bottom: 10px;">
-                <label style="font-size: 0.85em; color: #666;">Saturation</label>
-                <input type="range" id="satSlider" min="0" max="100" value="67" 
-                    style="width: 100%; height: 30px; -webkit-appearance: none; appearance: none; border-radius: 5px; outline: none;">
-            </div>
-            
-            <!-- Lightness slider with gradient -->
-            <div style="margin-bottom: 10px;">
-                <label style="font-size: 0.85em; color: #666;">Lightness</label>
-                <input type="range" id="lightSlider" min="0" max="100" value="40" 
-                    style="width: 100%; height: 30px; -webkit-appearance: none; appearance: none; border-radius: 5px; outline: none;">
-            </div>
-            
-            <!-- Color preview and native picker -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div id="colorPreview" style="width: 80px; height: 40px; border: 2px solid #666; border-radius: 4px; background-color: #a43855;"></div>
-                <span id="colorHexDisplay" style="font-family: monospace; font-size: 0.9em; color: #666;">#a43855</span>
-                <input type="color" id="storyLineColor" value="#a43855" style="width: 50px; height: 40px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;" title="Use native picker" />
-            </div>
+        <!-- Compact Color Picker -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <label for="storyLineColor" style="font-weight: bold; white-space: nowrap;">Line Color:</label>
+            <div id="colorPreview" style="width: 50px; height: 40px; border: 2px solid #666; border-radius: 4px; background-color: #a43855; cursor: pointer;" title="Click to customize color"></div>
+            <input type="text" id="colorHexInput" value="#a43855" maxlength="7" style="width: 80px; padding: 8px; font-family: monospace; text-transform: uppercase; border: 1px solid #ccc; border-radius: 4px;" placeholder="#000000" />
+            <button type="button" id="openColorPickerBtn" style="padding: 8px 12px; background: #a43855; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Customize</button>
+            <input type="color" id="storyLineColor" value="#a43855" style="display: none;" />
         </div>
         
         <p style="font-size: 0.85em; color: #666;">Drag and drop the entries on the right to reorder your journey.</p>
@@ -195,6 +159,59 @@
         <div class="entry-modal-actions">
             <button id="saveStoryBtn" type="button" class="save-btn">Save Story</button>
             <button id="cancelStoryBtn" type="button" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+</div>
+<!-- Custom Color Picker Modal -->
+<div id="colorPickerModal" class="overlay" style="display: none; z-index: 115;">
+    <div class="entry-modal-box" style="width: 95vw; max-width: 450px;">
+        <h3 style="margin-top: 0; color: #a43855;">Choose Your Color</h3>
+        
+        <!-- Quick color presets -->
+        <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
+            <button type="button" class="quick-color-btn" data-color="#a43855" style="width: 40px; height: 40px; background: #a43855; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#ff1493" style="width: 40px; height: 40px; background: #ff1493; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#ff6b00" style="width: 40px; height: 40px; background: #ff6b00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#ffff00" style="width: 40px; height: 40px; background: #ffff00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#00ff00" style="width: 40px; height: 40px; background: #00ff00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#00bfff" style="width: 40px; height: 40px; background: #00bfff; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#9370db" style="width: 40px; height: 40px; background: #9370db; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+            <button type="button" class="quick-color-btn" data-color="#000000" style="width: 40px; height: 40px; background: #000000; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;"></button>
+        </div>
+        
+        <!-- Hue slider with gradient -->
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 0.9em; font-weight: bold; display: block; margin-bottom: 5px;">Hue</label>
+            <input type="range" id="hueSlider" min="0" max="360" value="341" 
+                style="width: 100%; height: 35px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #ff0000 0%, #ffff00 16.67%, #00ff00 33.33%, #00ffff 50%, #0000ff 66.67%, #ff00ff 83.33%, #ff0000 100%); border-radius: 5px; outline: none;">
+        </div>
+        
+        <!-- Saturation slider with gradient -->
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 0.9em; font-weight: bold; display: block; margin-bottom: 5px;">Saturation</label>
+            <input type="range" id="satSlider" min="0" max="100" value="67" 
+                style="width: 100%; height: 35px; -webkit-appearance: none; appearance: none; border-radius: 5px; outline: none;">
+        </div>
+        
+        <!-- Lightness slider with gradient -->
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 0.9em; font-weight: bold; display: block; margin-bottom: 5px;">Lightness</label>
+            <input type="range" id="lightSlider" min="0" max="100" value="40" 
+                style="width: 100%; height: 35px; -webkit-appearance: none; appearance: none; border-radius: 5px; outline: none;">
+        </div>
+        
+        <!-- Color preview and hex input -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; justify-content: center;">
+            <div id="colorPreviewLarge" style="width: 100px; height: 60px; border: 3px solid #666; border-radius: 6px; background-color: #a43855;"></div>
+            <div>
+                <label style="font-size: 0.85em; display: block; margin-bottom: 3px;">Hex Code:</label>
+                <input type="text" id="colorHexInputModal" value="#a43855" maxlength="7" style="width: 90px; padding: 10px; font-family: monospace; font-size: 1.1em; text-transform: uppercase; border: 2px solid #ccc; border-radius: 4px; text-align: center;" placeholder="#000000" />
+            </div>
+        </div>
+        
+        <div class="entry-modal-actions">
+            <button id="applyColorBtn" type="button" class="save-btn">Apply Color</button>
+            <button id="cancelColorBtn" type="button" class="cancel-btn">Cancel</button>
         </div>
     </div>
 </div>

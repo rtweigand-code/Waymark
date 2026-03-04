@@ -272,13 +272,12 @@ function hexToHSL(hex) {
 
 function updateColorFromHSL() {
     const hexColor = hslToHex(currentHue, currentSat, currentLight);
-    const preview = document.getElementById('colorPreview');
-    const hexDisplay = document.getElementById('colorHexDisplay');
-    const nativeInput = document.getElementById('storyLineColor');
     
-    if (preview) preview.style.backgroundColor = hexColor;
-    if (hexDisplay) hexDisplay.textContent = hexColor.toUpperCase();
-    if (nativeInput) nativeInput.value = hexColor;
+    // Update modal preview
+    const previewLarge = document.getElementById('colorPreviewLarge');
+    const hexInputModal = document.getElementById('colorHexInputModal');
+    if (previewLarge) previewLarge.style.backgroundColor = hexColor;
+    if (hexInputModal) hexInputModal.value = hexColor.toUpperCase();
     
     // Update saturation gradient
     const satSlider = document.getElementById('satSlider');
@@ -298,6 +297,11 @@ function updateColorFromHSL() {
 }
 
 function setColorFromHex(hex) {
+    // Validate and clean hex
+    hex = hex.trim();
+    if (!hex.startsWith('#')) hex = '#' + hex;
+    if (!/^#[0-9A-F]{6}$/i.test(hex)) return false;
+    
     const hsl = hexToHSL(hex);
     currentHue = hsl.h;
     currentSat = hsl.s;
@@ -312,6 +316,17 @@ function setColorFromHex(hex) {
     if (lightSlider) lightSlider.value = currentLight;
     
     updateColorFromHSL();
+    return true;
+}
+
+function applyColorToStory(hexColor) {
+    const preview = document.getElementById('colorPreview');
+    const hexInput = document.getElementById('colorHexInput');
+    const nativeInput = document.getElementById('storyLineColor');
+    
+    if (preview) preview.style.backgroundColor = hexColor;
+    if (hexInput) hexInput.value = hexColor.toUpperCase();
+    if (nativeInput) nativeInput.value = hexColor;
 }
 
 // Color picker event listeners
@@ -325,15 +340,52 @@ document.addEventListener('input', (event) => {
     } else if (event.target.id === 'lightSlider') {
         currentLight = parseInt(event.target.value, 10);
         updateColorFromHSL();
-    } else if (event.target.id === 'storyLineColor') {
-        // Native color picker changed
-        setColorFromHex(event.target.value);
+    } else if (event.target.id === 'colorHexInputModal') {
+        // User typing in modal hex input
+        let hex = event.target.value.toUpperCase();
+        event.target.value = hex;
+        if (hex.length === 7 && setColorFromHex(hex)) {
+            applyColorToStory(hex);
+        }
+    } else if (event.target.id === 'colorHexInput') {
+        // User typing in main hex input - auto uppercase
+        let hex = event.target.value.toUpperCase();
+        event.target.value = hex;
+        if (hex.length === 7 && /^#[0-9A-F]{6}$/i.test(hex)) {
+            const preview = document.getElementById('colorPreview');
+            if (preview) preview.style.backgroundColor = hex;
+        }
     }
 });
 
-// Quick color preset buttons
+// Click event handlers
 document.addEventListener('click', (event) => {
-    const btn = event.target.closest('.quick-color-btn');
+    const target = event.target;
+    
+    // Open color picker modal
+    if (target.closest('#openColorPickerBtn') || target.closest('#colorPreview')) {
+        const currentColor = document.getElementById('colorHexInput').value;
+        setColorFromHex(currentColor);
+        document.getElementById('colorPickerModal').style.display = 'flex';
+        return;
+    }
+    
+    // Apply color from modal
+    if (target.closest('#applyColorBtn')) {
+        const hexColor = hslToHex(currentHue, currentSat, currentLight);
+        applyColorToStory(hexColor);
+        document.getElementById('colorPickerModal').style.display = 'none';
+        return;
+    }
+    
+    // Cancel color picker
+    if (target.closest('#cancelColorBtn')) {
+        document.getElementById('colorPickerModal').style.display = 'none';
+        return;
+    }
+    
+    // Quick color preset buttons
+    const btn = target.closest('.quick-color-btn');
     if (btn) {
         const color = btn.getAttribute('data-color');
         if (color) {

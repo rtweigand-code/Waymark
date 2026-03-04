@@ -106,18 +106,9 @@ function openStoryEditModal(storyId) {
         colorValue = '#a43855';
     }
     
-    // Initialize color picker (use global function if available)
-    if (typeof setColorFromHex === 'function') {
-        setColorFromHex(colorValue);
-    } else {
-        // Fallback for basic initialization
-        const colorInput = document.getElementById('storyLineColor');
-        const colorPreview = document.getElementById('colorPreview');
-        const colorHexDisplay = document.getElementById('colorHexDisplay');
-        
-        if (colorInput) colorInput.value = colorValue;
-        if (colorPreview) colorPreview.style.backgroundColor = colorValue;
-        if (colorHexDisplay) colorHexDisplay.textContent = colorValue.toUpperCase();
+    // Initialize color using the global function if available
+    if (typeof applyColorToStory === 'function') {
+        applyColorToStory(colorValue);
     }
 
     renderStoryEditLists();
@@ -177,7 +168,7 @@ function removeEntryFromStory(entryId) {
 // Saves the current story being edited, creating or updating it with the selected entries and title
 function saveStory() {
     const title = document.getElementById('storyTitleInput').value.trim();
-    const colorInput = document.getElementById('storyLineColor');
+    const colorInput = document.getElementById('colorHexInput') || document.getElementById('storyLineColor');
     const colorHex = colorInput ? colorInput.value : '#a43855';
     if (!title) { alert("Give your story a title!"); return; }
 
