@@ -421,7 +421,7 @@ input, textarea {
 .map-hint {
     position: absolute;
     left: 12px;
-    bottom: 12px;
+    bottom: 22px; /* moved up slightly so it doesn't overlap attribution text */
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid #ccc;
     border-radius: 6px;
